@@ -129,6 +129,7 @@
       color: #111;
       word-wrap: break-word;
       line-height: 1.8;
+      white-space: pre-line; /* 긴 글 줄바꿈 유지 */
     }
 
     .typed-display {
@@ -200,6 +201,46 @@
 
     .wrong-char {
       color: #e53935;
+    }
+
+    /* ===== 긴 글 선택 리스트 ===== */
+    .long-selector {
+      display: none;
+      text-align: left;
+    }
+
+    .long-selector.active {
+      display: block;
+    }
+
+    .long-selector-title {
+      font-size: 0.9rem;
+      color: #444;
+      margin-bottom: 4px;
+    }
+
+    .long-list {
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: #fafafa;
+      max-height: 170px;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+
+    .long-item {
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .long-item:hover {
+      background: #e3f2fd;
+    }
+
+    .long-item.selected {
+      background: #bbdefb;
+      font-weight: 600;
     }
 
     /* ===== 게임 영역 ===== */
@@ -280,6 +321,7 @@
       color: #111;
       word-wrap: break-word;
       line-height: 1.7;
+      white-space: pre-line;
     }
 
     .game-typed-display {
@@ -390,6 +432,14 @@
     <section class="tab-section active" id="practiceSection">
       <div class="mode-title" id="modeTitle">단어</div>
       <div class="center-wrap">
+        <!-- 긴 글에서만 보이는 선택 리스트 -->
+        <div class="long-selector" id="longSelector">
+          <div class="long-selector-title">긴 글 선택</div>
+          <div class="long-list" id="longList">
+            <!-- JS에서 제목 목록 채워짐 -->
+          </div>
+        </div>
+
         <!-- 한국어 뜻 + 아랍어 하나의 회색 박스 -->
         <div>
           <div class="box combined-box">
@@ -530,8 +580,24 @@
       { type: "word", meaning: "친구", text: "صَدِيقٌ" },
       { type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
       { type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِمَعْرِفَتِكَ." },
-      { type: "sentence-long", meaning: "나는 아랍어를 조금만 말할 수 있습니다.", text: "أَسْتَطِيعُ أَنْ أَتَحَدَّثَ الْعَرَبِيَّةَ قَلِيلًا فَقَطْ." },
-      { type: "sentence-long", meaning: "오늘은 대학에서 아랍어 수업을 듣고 친구들과 도서관에 갔습니다.", text: "الْيَوْمَ حَضَرْتُ دَرْسًا فِي الْعَرَبِيَّةِ فِي الْجَامِعَةِ، ثُمَّ ذَهَبْتُ مَعَ أَصْدِقَائِي إِلَى الْمَكْتَبَةِ." }
+      {
+        type: "sentence-long",
+        title: "동화 1",
+        meaning: "동화 1",
+        text:
+"فِي يَوْمٍ مِنَ الأَيَّامِ ذَهَبَ وَلَدٌ صَغِيرٌ إِلَى الْمَدْرَسَةِ.\n" +
+"كَانَ يَحْمِلُ فِي حَقِيبَتِهِ كِتَابَ الْقِصَصِ الَّذِي يُحِبُّهُ جِدًّا.\n" +
+"فِي طَرِيقِهِ قَابَلَ صَدِيقَهُ فِي الْحَيِّ، وَتَحَدَّثَا عَنِ الْأَحْلَامِ وَالْمُسْتَقْبَلِ."
+      },
+      {
+        type: "sentence-long",
+        title: "뉴스 1",
+        meaning: "뉴스 1",
+        text:
+"أَعْلَنَتِ الْجَامِعَةُ الْيَوْمَ عَنْ بَرْنَامَجٍ جَدِيدٍ لِتَعْلِيمِ اللُّغَةِ الْعَرَبِيَّةِ.\n" +
+"يَهْدِفُ الْبَرْنَامَجُ إِلَى مُسَاعَدَةِ الطُّلَّابِ عَلَى التَّحَدُّثِ وَالْكِتَابَةِ بِطَلَاقَةٍ.\n" +
+"سَيَبْدَأُ التَّسْجِيلُ فِي الشَّهْرِ الْمُقْبِلِ وَسَيَكُونُ مَجَّانِيًّا لِجَمِيعِ الطُّلَّابِ."
+      }
     ];
 
     function colorizeText(target, typed) {
@@ -590,6 +656,9 @@
     const practiceLength = document.getElementById("practiceLength");
     const practiceNextBtn = document.getElementById("practiceNextBtn");
 
+    const longSelector = document.getElementById("longSelector");
+    const longListEl = document.getElementById("longList");
+
     let practiceList = [];
     let practiceIndex = 0;
     let practiceCurrent = null;
@@ -598,12 +667,16 @@
       if (currentMode === "word") {
         modeTitle.textContent = "단어";
         practiceList = exercises.filter(ex => ex.type === "word");
+        longSelector.classList.remove("active");
       } else if (currentMode === "short") {
         modeTitle.textContent = "문장";
         practiceList = exercises.filter(ex => ex.type === "sentence-short");
+        longSelector.classList.remove("active");
       } else {
         modeTitle.textContent = "긴 글";
         practiceList = exercises.filter(ex => ex.type === "sentence-long");
+        longSelector.classList.add("active");
+        buildLongList();
       }
 
       if (practiceList.length === 0) {
@@ -616,25 +689,52 @@
         return;
       }
 
+      // 기본은 첫 번째 항목
       practiceIndex = 0;
       loadPracticeItem();
     }
 
+    function buildLongList() {
+      longListEl.innerHTML = "";
+      practiceList.forEach((item, idx) => {
+        const div = document.createElement("div");
+        div.className = "long-item" + (idx === practiceIndex ? " selected" : "");
+        const title = item.title || item.meaning || `긴 글 ${idx + 1}`;
+        div.textContent = title;
+        div.addEventListener("click", () => {
+          practiceIndex = idx;
+          loadPracticeItem();
+          // 선택 표시 갱신
+          document.querySelectorAll(".long-item").forEach((el, i) => {
+            el.classList.toggle("selected", i === practiceIndex);
+          });
+        });
+        longListEl.appendChild(div);
+      });
+    }
+
     function loadPracticeItem() {
       practiceCurrent = practiceList[practiceIndex];
-      practiceMeaning.textContent = practiceCurrent.meaning;
-      practiceTarget.textContent = practiceCurrent.text;
+      practiceMeaning.textContent = practiceCurrent.meaning || "";
+      practiceTarget.textContent = practiceCurrent.text || "";
       practiceTypedDisplay.innerHTML = "";
       practiceInput.value = "";
       practiceAccuracy.textContent = "정확도: 100%";
-      practiceLength.textContent = `0 / ${practiceCurrent.text.length} 글자`;
+      practiceLength.textContent = `0 / ${(practiceCurrent.text || "").length} 글자`;
       practiceInput.focus();
+
+      // 긴 글 모드일 때 리스트 선택 표시 갱신
+      if (currentMode === "long") {
+        document.querySelectorAll(".long-item").forEach((el, i) => {
+          el.classList.toggle("selected", i === practiceIndex);
+        });
+      }
     }
 
     function updatePracticeTyping() {
       if (!practiceCurrent) return;
       const typed = practiceInput.value;
-      const target = practiceCurrent.text;
+      const target = practiceCurrent.text || "";
       const { html, correctCount } = colorizeText(target, typed);
       practiceTypedDisplay.innerHTML = html;
 
