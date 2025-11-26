@@ -726,14 +726,19 @@
 
       // 긴 글
       {
-        type: "sentence-long",
-        title: "동화 1",
-        meaning: "여름날 학교에 가는 소년의 이야기",
-        text:
+  type: "sentence-long",
+  title: "동화 1",
+  meaning: "여름날 학교에 가는 소년의 이야기",
+  text:
 "فِي يَوْمٍ مِنَ الأَيَّامِ ذَهَبَ وَلَدٌ صَغِيرٌ إِلَى الْمَدْرَسَةِ.\n" +
 "كَانَ يَحْمِلُ فِي حَقِيبَتِهِ كِتَابَ الْقِصَصِ الَّذِي يُحِبُّهُ جِدًّا.\n" +
-"فِي طَرِيقِهِ قَابَلَ صَدِيقَهُ فِي الْحَيِّ، وَتَحَدَّثَا عَنِ الْأَحْلَامِ وَالْمُسْتَقْبَلِ."
+"فِي طَرِيقِهِ قَابَلَ صَدِيقَهُ فِي الْحَيِّ، وَتَحَدَّثَا عَنِ الْأَحْلَامِ وَالْمُسْتَقْبَلِ.",
+  korText:
+"어느 날 한 소년이 학교에 갔습니다.\n" +
+"그는 가방에 자신이 아주 좋아하는 이야기책을 넣고 있었습니다.\n" +
+"가는 길에 동네 친구를 만나 꿈과 미래에 대해 이야기했습니다."
       },
+      
       {
         type: "sentence-long",
         title: "뉴스 1",
@@ -786,7 +791,8 @@
 
     // 긴 글 모드용 상태
     let longSentenceIndex = 0;
-    let currentLongSentences = [];
+let currentLongSentences = [];
+let currentLongSentencesKor = [];   // ← 이 줄 추가
 
     function updatePracticeTopStats(accuracy, typedLen, totalLen) {
       const progressCount = (practiceList && practiceList.length > 0)
@@ -844,31 +850,49 @@
     }
 
     function showCurrentLongSentence() {
-      if (!practiceCurrent) return;
-      const meaningText = practiceCurrent.meaning || practiceCurrent.title || "";
-      const sentence = currentLongSentences[longSentenceIndex] || "";
-      practiceMeaning.textContent = meaningText;
-      practiceTarget.textContent = sentence;
-      practiceTypedDisplay.innerHTML = "";
-      practiceInput.value = "";
-      const baseLen = stripDiacritics(sentence).length;
-      updatePracticeTopStats(100, 0, baseLen);
+  if (!practiceCurrent) return;
 
-      document.querySelectorAll(".long-item").forEach((el, i) => {
-        el.classList.toggle("selected", i === practiceIndex);
-      });
-      practiceInput.focus();
+  const sentence = currentLongSentences[longSentenceIndex] || "";
+
+  // 한국어 문장: 있으면 그 문장을, 없으면 전체 meaning/title 을 사용
+  let sentenceMeaning = "";
+  if (currentLongSentencesKor.length > 0 &&
+      longSentenceIndex < currentLongSentencesKor.length) {
+    sentenceMeaning = currentLongSentencesKor[longSentenceIndex];
+  } else {
+    sentenceMeaning = practiceCurrent.meaning || practiceCurrent.title || "";
+  }
+
+  practiceMeaning.textContent = sentenceMeaning;
+  practiceTarget.textContent = sentence;
+
+  practiceTypedDisplay.innerHTML = "";
+  practiceInput.value = "";
+
+  const baseLen = stripDiacritics(sentence).length;
+  updatePracticeTopStats(100, 0, baseLen);
+
+  document.querySelectorAll(".long-item").forEach((el, i) => {
+    el.classList.toggle("selected", i === practiceIndex);
+  });
+  practiceInput.focus();
     }
 
     function loadPracticeItem() {
       practiceCurrent = practiceList[practiceIndex];
 
       if (currentMode === "long") {
-        const rawText = practiceCurrent.text || "";
-        currentLongSentences = rawText.split(/\n+/).filter(line => line.trim().length > 0);
-        longSentenceIndex = 0;
-        showCurrentLongSentence();
-        return;
+  const rawText = practiceCurrent.text || "";
+  currentLongSentences = rawText.split(/\n+/).filter(line => line.trim().length > 0);
+
+  const rawKor = practiceCurrent.korText || "";
+  currentLongSentencesKor = rawKor
+    ? rawKor.split(/\n+/).filter(line => line.trim().length > 0)
+    : [];
+
+  longSentenceIndex = 0;
+  showCurrentLongSentence();
+  return;
       }
 
       const targetText = practiceCurrent.text || "";
