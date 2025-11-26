@@ -850,8 +850,13 @@
       updatePracticeTopStats(accuracy, typedLen, baseLen);
     }
 
-    practiceInput.addEventListener("input", updatePracticeTyping);
-
+    practiceInput.addEventListener("input", updatePracticeTyping);// 엔터 키로도 다음 문제로 넘어가기
+practiceInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();        // 줄바꿈 방지
+    practiceNextBtn.click();   // '다음' 버튼 강제로 클릭
+  }
+});
     practiceNextBtn.addEventListener("click", () => {
       if (practiceList.length === 0) return;
       practiceIndex = (practiceIndex + 1) % practiceList.length;
