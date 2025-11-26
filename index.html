@@ -41,7 +41,7 @@
       margin-bottom: 14px;
     }
 
-    /* 메인 탭: 한 줄 정렬 */
+    /* 메인 탭 */
     .main-tabs {
       display: flex;
       justify-content: center;
@@ -117,7 +117,6 @@
       text-align: center;
     }
 
-    /* 한국어 + 아랍어 한 박스 */
     .combined-box {
       display: flex;
       flex-direction: column;
@@ -203,7 +202,7 @@
       color: #e53935;
     }
 
-    /* 긴 글 선택 리스트 (한컴 스타일 차용) */
+    /* 긴 글 선택 리스트 */
     .long-selector {
       display: none;
       text-align: left;
@@ -351,7 +350,7 @@
     /* 떨어지는 단어용 영역 */
     .fall-wrapper {
       position: relative;
-      height: 320px;
+      height: 320px;          /* 넓게 */
       overflow: hidden;
       border-radius: 12px;
       background: #fafafa;
@@ -428,7 +427,6 @@
   <div class="container">
     <h1 class="app-title">아랍어 타자 연습</h1>
 
-    <!-- 메인 탭 -->
     <div class="main-tabs">
       <button class="main-tab-btn active" data-tab="word">단어</button>
       <button class="main-tab-btn" data-tab="short">문장</button>
@@ -441,18 +439,15 @@
       <div class="mode-title" id="modeTitle">단어</div>
 
       <div class="center-wrap">
-        <!-- 상단 정확도/글자수 -->
         <div class="top-stats">
           <span id="practiceTopStats">정확도: 100%  0 / 0 글자</span>
         </div>
 
-        <!-- 긴 글 선택 리스트 (긴 글 모드에서만 보임) -->
         <div class="long-selector" id="longSelector">
           <div class="long-selector-title">긴 글 선택</div>
           <div class="long-list" id="longList"></div>
         </div>
 
-        <!-- 한국어 + 아랍어 한 박스 -->
         <div>
           <div class="box combined-box">
             <div class="meaning-line" id="practiceMeaning">제 이름은 지훈입니다.</div>
@@ -495,13 +490,11 @@
       <!-- 단어 게임 -->
       <div class="game-content active" id="fallWordArea">
         <div class="game-center-wrap">
-          <!-- 상단 점수/속도 -->
           <div class="game-top-stats">
             <span id="fallScoreTop">점수: 0</span>
             <span id="fallSpeedInfo">속도: 1.0x</span>
           </div>
 
-          <!-- 떨어지는 단어 캔버스 -->
           <div class="fall-wrapper" id="fallWrapper"></div>
 
           <div>
@@ -528,10 +521,9 @@
         </div>
       </div>
 
-      <!-- 문장 게임: 타임어택 -->
+      <!-- 문장 게임 -->
       <div class="game-content" id="timeSentenceArea">
         <div class="game-center-wrap">
-          <!-- 상단: 남은 시간 / 완료 / 정확도 -->
           <div class="game-top-stats">
             <span id="timeLeft">남은 시간: 30초</span>
             <span id="timeScore">완료한 문제: 0개</span>
@@ -574,7 +566,6 @@
   </div>
 
   <script>
-    // ===== 연습/게임 공통 데이터 =====
     const exercises = [
       { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
       { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
@@ -624,12 +615,11 @@
       return { html, correctCount };
     }
 
-    // ===== 메인 탭 전환 =====
+    // 메인 탭
     const mainTabButtons = document.querySelectorAll(".main-tab-btn");
     const practiceSection = document.getElementById("practiceSection");
     const gameSection = document.getElementById("gameSection");
-
-    let currentMode = "word"; // word / short / long
+    let currentMode = "word";
 
     mainTabButtons.forEach(btn => {
       btn.addEventListener("click", () => {
@@ -657,10 +647,8 @@
     const practiceInput = document.getElementById("practiceInput");
     const practiceTopStats = document.getElementById("practiceTopStats");
     const practiceProgress = document.getElementById("practiceProgress");
-
     const longSelector = document.getElementById("longSelector");
     const longListEl = document.getElementById("longList");
-
     const practiceNextBtn = document.getElementById("practiceNextBtn");
 
     let practiceList = [];
@@ -769,10 +757,9 @@
       loadPracticeItem();
     });
 
-    // 초기 연습 모드 세팅
     setupPracticeMode();
 
-    // ===== 게임 탭 내부 전환 =====
+    // ===== 게임 탭 전환 =====
     const gameTabButtons = document.querySelectorAll(".game-tab-btn");
     const fallWordArea = document.getElementById("fallWordArea");
     const timeSentenceArea = document.getElementById("timeSentenceArea");
@@ -793,7 +780,7 @@
       });
     });
 
-    // ===== 단어 게임: 여러 단어 떨어지기 =====
+    // ===== 단어 게임 =====
     const fallWrapper = document.getElementById("fallWrapper");
     const fallTypedDisplay = document.getElementById("fallTypedDisplay");
     const fallInput = document.getElementById("fallInput");
@@ -808,9 +795,9 @@
       speed: 0.8,
       timerId: null,
       spawnId: null,
-      items: [],   // { id, text, el, y }
-      current: null
-       nextSide: "left
+      items: [],   // { id, text, el, y, x }
+      current: null,
+      nextSide: "left"
     };
 
     function getRandomWord() {
@@ -821,38 +808,32 @@
     }
 
     function spawnFallWord() {
-  if (!fallState.active) return;
-  const data = getRandomWord();
-  if (!data) return;
+      if (!fallState.active) return;
+      const data = getRandomWord();
+      if (!data) return;
 
-  const id = Date.now() + Math.random();
+      const id = Date.now() + Math.random();
+      const x = fallState.nextSide === "left" ? 25 : 75;
+      fallState.nextSide = fallState.nextSide === "left" ? "right" : "left";
 
-  // 좌우 번갈아가면서 x 위치 설정 (25% ↔ 75%)
-  const x = fallState.nextSide === "left" ? 25 : 75;
-  fallState.nextSide = fallState.nextSide === "left" ? "right" : "left";
+      const el = document.createElement("div");
+      el.className = "fall-word";
+      el.dataset.id = id;
+      el.textContent = data.text;
+      el.style.left = x + "%";
+      el.style.transform = "translate(-50%, 0%)";
 
-  const el = document.createElement("div");
-  el.className = "fall-word";
-  el.dataset.id = id;
-  el.textContent = data.text;
+      fallWrapper.appendChild(el);
 
-  // x 위치 반영, y=0으로 시작
-  el.style.left = x + "%";
-  el.style.transform = "translate(-50%, 0%)";
+      const item = { id, text: data.text, el, y: 0, x };
+      fallState.items.push(item);
 
-  fallWrapper.appendChild(el);
-
-  const item = { id, text: data.text, el, y: 0, x };
-  fallState.items.push(item);
-
-  // 아직 타이핑 대상이 없으면 이 단어부터
-  if (!fallState.current) {
-    fallState.current = item;
-    fallTypedDisplay.innerHTML = "";
-    fallInput.value = "";
-  }
-}
-
+      if (!fallState.current) {
+        fallState.current = item;
+        fallTypedDisplay.innerHTML = "";
+        fallInput.value = "";
+      }
+    }
 
     function updateFallingPosition() {
       if (!fallState.active) return;
@@ -861,7 +842,6 @@
         item.y += fallState.speed;
         item.el.style.transform = `translate(-50%, ${item.y}%)`;
 
-        // 바닥에 닿으면 게임 오버
         if (item.y >= 100) {
           stopFallGame(false);
           return;
@@ -889,10 +869,10 @@
       if (fallState.timerId) clearInterval(fallState.timerId);
       if (fallState.spawnId) clearInterval(fallState.spawnId);
 
-      fallState.timerId = setInterval(updateFallingPosition, 80);   // 위치 업데이트
-      fallState.spawnId = setInterval(spawnFallWord, 2000);         // 2초마다 새 단어
+      fallState.timerId = setInterval(updateFallingPosition, 80);
+      fallState.spawnId = setInterval(spawnFallWord, 2000);
 
-      spawnFallWord(); // 시작 즉시 하나 생성
+      spawnFallWord();
     }
 
     function stopFallGame(cleared) {
@@ -937,7 +917,7 @@
     fallStartBtn.addEventListener("click", startFallGame);
     fallInput.addEventListener("input", handleFallInput);
 
-    // ===== 문장 게임: 타임어택 =====
+    // ===== 문장 게임 =====
     const timeMeaning = document.getElementById("timeMeaning");
     const timeTargetDisplay = document.getElementById("timeTargetDisplay");
     const timeTypedDisplay = document.getElementById("timeTypedDisplay");
