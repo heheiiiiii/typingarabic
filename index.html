@@ -286,6 +286,32 @@
       margin-bottom: 4px;
     }
 
+    .game-difficulty {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .diff-btn {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #ccc;
+      background: #fafafa;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .diff-btn.active {
+      background: #4caf50;
+      border-color: #4caf50;
+      color: #fff;
+    }
+
     .game-stats-row {
       margin-top: 10px;
       display: flex;
@@ -420,6 +446,13 @@
       <!-- 단어 게임 -->
       <div class="game-content active" id="fallWordArea">
         <div class="game-center-wrap">
+          <div class="game-difficulty">
+            <span>난이도:</span>
+            <button class="diff-btn active" data-level="easy">쉬움</button>
+            <button class="diff-btn" data-level="normal">중간</button>
+            <button class="diff-btn" data-level="hard">어려움</button>
+          </div>
+
           <div class="game-top-stats">
             <span id="fallScoreTop">점수: 0</span>
             <span id="fallSpeedInfo">속도: 1.0x</span>
@@ -498,7 +531,7 @@
   <script>
     // ---------- 공통 유틸 ----------
     function stripDiacritics(str) {
-      // 아랍어 모음부호(타쉬킬) 제거
+      // 아랍어 모음부호 제거
       return str.replace(/[\u0610-\u061A\u064B-\u0652\u0670\u06D6-\u06ED]/g, "");
     }
 
@@ -511,16 +544,15 @@
       return a;
     }
 
-    // 글자 단위 채색 (모음부호는 무시하고 자음 기준으로 비교)
     function colorizeText(target, typed) {
-      const baseTarget = stripDiacritics(target);      // ex) مَكْتَبٌ -> مكتب
-      const baseTyped  = stripDiacritics(typed);       // 보통 typed와 동일
+      const baseTarget = stripDiacritics(target);
+      const baseTyped  = stripDiacritics(typed);
 
       let html = "";
       let correctCount = 0;
 
       for (let i = 0; i < baseTyped.length; i++) {
-        const rawCh   = typed[i] || "";        // 실제 표시용 문자
+        const rawCh   = typed[i] || "";
         const typedCh = baseTyped[i] || "";
         const tgtCh   = baseTarget[i] || "";
 
@@ -542,164 +574,157 @@
     const exercises = [
       // 단어
       { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
-{ type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
-{ type: "word", meaning: "친구", text: "صَدِيقٌ" },
-{ type: "word", meaning: "물", text: "مَاءٌ" },
-{ type: "word", meaning: "집", text: "بَيْتٌ" },
-{ type: "word", meaning: "도시", text: "مَدِينَةٌ" },
-{ type: "word", meaning: "나라", text: "بَلَدٌ" },
-{ type: "word", meaning: "책", text: "كِتَابٌ" },
-{ type: "word", meaning: "문", text: "بَابٌ" },
-{ type: "word", meaning: "의자", text: "كُرْسِيٌّ" },
-{ type: "word", meaning: "침대", text: "سَرِيرٌ" },
-{ type: "word", meaning: "음식", text: "طَعَامٌ" },
-{ type: "word", meaning: "커피", text: "قَهْوَةٌ" },
-{ type: "word", meaning: "차(tea)", text: "شَايٌ" },
-{ type: "word", meaning: "사람", text: "إِنْسَانٌ" },
-{ type: "word", meaning: "학생", text: "طَالِبٌ" },
-{ type: "word", meaning: "선생님", text: "مُعَلِّمٌ" },
-{ type: "word", meaning: "가족", text: "أُسْرَةٌ" },
-{ type: "word", meaning: "아버지", text: "أَبٌ" },
-{ type: "word", meaning: "어머니", text: "أُمٌّ" },
-{ type: "word", meaning: "형제", text: "أَخٌ" },
-{ type: "word", meaning: "자매", text: "أُخْتٌ" },
-{ type: "word", meaning: "태양", text: "شَمْسٌ" },
-{ type: "word", meaning: "달", text: "قَمَرٌ" },
-{ type: "word", meaning: "바람", text: "رِيحٌ" },
-{ type: "word", meaning: "하늘", text: "سَمَاءٌ" },
-{ type: "word", meaning: "바다", text: "بَحْرٌ" },
-{ type: "word", meaning: "산", text: "جَبَلٌ" },
-{ type: "word", meaning: "강", text: "نَهْرٌ" },
-{ type: "word", meaning: "길", text: "طَرِيقٌ" },
-{ type: "word", meaning: "자동차", text: "سَيَّارَةٌ" },
-{ type: "word", meaning: "버스", text: "حَافِلَةٌ" },
-{ type: "word", meaning: "비행기", text: "طَائِرَةٌ" },
-{ type: "word", meaning: "공항", text: "مَطَارٌ" },
-{ type: "word", meaning: "시장", text: "سُوقٌ" },
-{ type: "word", meaning: "가게", text: "مَحَلٌّ" },
-{ type: "word", meaning: "돈", text: "مَالٌ" },
-{ type: "word", meaning: "시간", text: "وَقْتٌ" },
-{ type: "word", meaning: "하루", text: "يَوْمٌ" },
-{ type: "word", meaning: "밤", text: "لَيْلٌ" },
-{ type: "word", meaning: "아침", text: "صَبَاحٌ" },
-{ type: "word", meaning: "저녁", text: "مَسَاءٌ" },
-{ type: "word", meaning: "음악", text: "مُوسِيقَى" },
-{ type: "word", meaning: "사진", text: "صُورَةٌ" },
-{ type: "word", meaning: "전화기", text: "هَاتِفٌ" },
-{ type: "word", meaning: "컴퓨터", text: "حَاسُوبٌ" },
-{ type: "word", meaning: "창문", text: "نَافِذَةٌ" },
-{ type: "word", meaning: "꽃", text: "زَهْرَةٌ" },
-{ type: "word", meaning: "나무", text: "شَجَرَةٌ" },
-{ type: "word", meaning: "새", text: "طَائِرٌ" },
-{ type: "word", meaning: "개", text: "كَلْبٌ" },
-{ type: "word", meaning: "고양이", text: "قِطٌّ" },
-{ type: "word", meaning: "책가방", text: "حَقِيبَةٌ" },
-{ type: "word", meaning: "문제", text: "مُشْكِلَةٌ" },
-{ type: "word", meaning: "사랑", text: "حُبٌّ" },
-{ type: "word", meaning: "평화", text: "سَلَامٌ" },
-{ type: "word", meaning: "행복", text: "سَعَادَةٌ" },
+      { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
+      { type: "word", meaning: "친구", text: "صَدِيقٌ" },
+
+      { type: "word", meaning: "물", text: "مَاءٌ" },
+      { type: "word", meaning: "집", text: "بَيْتٌ" },
+      { type: "word", meaning: "도시", text: "مَدِينَةٌ" },
+      { type: "word", meaning: "나라", text: "بَلَدٌ" },
+      { type: "word", meaning: "책", text: "كِتَابٌ" },
+      { type: "word", meaning: "문", text: "بَابٌ" },
+      { type: "word", meaning: "의자", text: "كُرْسِيٌّ" },
+      { type: "word", meaning: "침대", text: "سَرِيرٌ" },
+      { type: "word", meaning: "음식", text: "طَعَامٌ" },
+      { type: "word", meaning: "커피", text: "قَهْوَةٌ" },
+      { type: "word", meaning: "차(tea)", text: "شَايٌ" },
+      { type: "word", meaning: "사람", text: "إِنْسَانٌ" },
+      { type: "word", meaning: "학생", text: "طَالِبٌ" },
+      { type: "word", meaning: "선생님", text: "مُعَلِّمٌ" },
+      { type: "word", meaning: "가족", text: "أُسْرَةٌ" },
+      { type: "word", meaning: "아버지", text: "أَبٌ" },
+      { type: "word", meaning: "어머니", text: "أُمٌّ" },
+      { type: "word", meaning: "형제", text: "أَخٌ" },
+      { type: "word", meaning: "자매", text: "أُخْتٌ" },
+      { type: "word", meaning: "태양", text: "شَمْسٌ" },
+      { type: "word", meaning: "달", text: "قَمَرٌ" },
+      { type: "word", meaning: "바람", text: "رِيحٌ" },
+      { type: "word", meaning: "하늘", text: "سَمَاءٌ" },
+      { type: "word", meaning: "바다", text: "بَحْرٌ" },
+      { type: "word", meaning: "산", text: "جَبَلٌ" },
+      { type: "word", meaning: "강", text: "نَهْرٌ" },
+      { type: "word", meaning: "길", text: "طَرِيقٌ" },
+      { type: "word", meaning: "자동차", text: "سَيَّارَةٌ" },
+      { type: "word", meaning: "버스", text: "حَافِلَةٌ" },
+      { type: "word", meaning: "비행기", text: "طَائِرَةٌ" },
+      { type: "word", meaning: "공항", text: "مَطَارٌ" },
+      { type: "word", meaning: "시장", text: "سُوقٌ" },
+      { type: "word", meaning: "가게", text: "مَحَلٌّ" },
+      { type: "word", meaning: "돈", text: "مَالٌ" },
+      { type: "word", meaning: "시간", text: "وَقْتٌ" },
+      { type: "word", meaning: "하루", text: "يَوْمٌ" },
+      { type: "word", meaning: "밤", text: "لَيْلٌ" },
+      { type: "word", meaning: "아침", text: "صَبَاحٌ" },
+      { type: "word", meaning: "저녁", text: "مَسَاءٌ" },
+      { type: "word", meaning: "음악", text: "مُوسِيقَى" },
+      { type: "word", meaning: "사진", text: "صُورَةٌ" },
+      { type: "word", meaning: "전화기", text: "هَاتِفٌ" },
+      { type: "word", meaning: "컴퓨터", text: "حَاسُوبٌ" },
+      { type: "word", meaning: "창문", text: "نَافِذَةٌ" },
+      { type: "word", meaning: "꽃", text: "زَهْرَةٌ" },
+      { type: "word", meaning: "나무", text: "شَجَرَةٌ" },
+      { type: "word", meaning: "새", text: "طَائِرٌ" },
+      { type: "word", meaning: "개", text: "كَلْبٌ" },
+      { type: "word", meaning: "고양이", text: "قِطٌّ" },
+      { type: "word", meaning: "책가방", text: "حَقِيبَةٌ" },
+      { type: "word", meaning: "문제", text: "مُشْكِلَةٌ" },
+      { type: "word", meaning: "사랑", text: "حُبٌّ" },
+      { type: "word", meaning: "평화", text: "سَلَامٌ" },
+      { type: "word", meaning: "행복", text: "سَعَادَةٌ" },
+
       { type: "word", meaning: "문장", text: "جُمْلَةٌ" },
-{ type: "word", meaning: "단어", text: "كَلِمَةٌ" },
-{ type: "word", meaning: "이름", text: "اِسْمٌ" },
-{ type: "word", meaning: "손", text: "يَدٌ" },
-{ type: "word", meaning: "눈", text: "عَيْنٌ" },
-{ type: "word", meaning: "귀", text: "أُذُنٌ" },
-{ type: "word", meaning: "입", text: "فَمٌ" },
-{ type: "word", meaning: "머리", text: "رَأْسٌ" },
-{ type: "word", meaning: "얼굴", text: "وَجْهٌ" },
-{ type: "word", meaning: "몸", text: "جِسْمٌ" },
+      { type: "word", meaning: "단어", text: "كَلِمَةٌ" },
+      { type: "word", meaning: "이름", text: "اِسْمٌ" },
+      { type: "word", meaning: "손", text: "يَدٌ" },
+      { type: "word", meaning: "눈", text: "عَيْنٌ" },
+      { type: "word", meaning: "귀", text: "أُذُنٌ" },
+      { type: "word", meaning: "입", text: "فَمٌ" },
+      { type: "word", meaning: "머리", text: "رَأْسٌ" },
+      { type: "word", meaning: "얼굴", text: "وَجْهٌ" },
+      { type: "word", meaning: "몸", text: "جِسْمٌ" },
+      { type: "word", meaning: "음료", text: "مَشْرُوبٌ" },
+      { type: "word", meaning: "빵", text: "خُبْزٌ" },
+      { type: "word", meaning: "과일", text: "فَاكِهَةٌ" },
+      { type: "word", meaning: "사과", text: "تُفَّاحَةٌ" },
+      { type: "word", meaning: "바나나", text: "مَوْزَةٌ" },
+      { type: "word", meaning: "오렌지", text: "بُرْتُقَالَةٌ" },
+      { type: "word", meaning: "밥", text: "أَرُزٌّ" },
+      { type: "word", meaning: "고기", text: "لَحْمٌ" },
+      { type: "word", meaning: "닭고기", text: "دَجَاجٌ" },
+      { type: "word", meaning: "생선", text: "سَمَكٌ" },
+      { type: "word", meaning: "옷", text: "مَلَابِسُ" },
+      { type: "word", meaning: "신발", text: "حِذَاءٌ" },
+      { type: "word", meaning: "가방", text: "حَقِيبَةٌ" },
+      { type: "word", meaning: "모자", text: "قُبَّعَةٌ" },
+      { type: "word", meaning: "시계", text: "سَاعَةٌ" },
+      { type: "word", meaning: "열쇠", text: "مِفْتَاحٌ" },
+      { type: "word", meaning: "선물", text: "هَدِيَّةٌ" },
+      { type: "word", meaning: "약", text: "دَوَاءٌ" },
+      { type: "word", meaning: "의사", text: "طَبِيبٌ" },
+      { type: "word", meaning: "병원", text: "مُسْتَشْفَى" },
+      { type: "word", meaning: "약국", text: "صَيْدَلِيَّةٌ" },
+      { type: "word", meaning: "은행", text: "بَنْكٌ" },
+      { type: "word", meaning: "우체국", text: "مَكْتَبُ الْبَرِيدِ" },
+      { type: "word", meaning: "도서관", text: "مَكْتَبَةٌ" },
+      { type: "word", meaning: "식당", text: "مَطْعَمٌ" },
+      { type: "word", meaning: "카페", text: "مَقْهَى" },
+      { type: "word", meaning: "호텔", text: "فُنْدُقٌ" },
+      { type: "word", meaning: "방", text: "غُرْفَةٌ" },
+      { type: "word", meaning: "욕실", text: "حَمَّامٌ" },
+      { type: "word", meaning: "비", text: "مَطَرٌ" },
+      { type: "word", meaning: "눈(눈송이)", text: "ثَلْجٌ" },
+      { type: "word", meaning: "날씨", text: "طَقْسٌ" },
+      { type: "word", meaning: "여름", text: "صَيْفٌ" },
+      { type: "word", meaning: "겨울", text: "شِتَاءٌ" },
+      { type: "word", meaning: "봄", text: "رَبِيعٌ" },
+      { type: "word", meaning: "가을", text: "خَرِيفٌ" },
+      { type: "word", meaning: "불", text: "نَارٌ" },
+      { type: "word", meaning: "빛", text: "ضَوْءٌ" },
+      { type: "word", meaning: "그림", text: "رَسْمٌ" },
 
-{ type: "word", meaning: "음료", text: "مَشْرُوبٌ" },
-{ type: "word", meaning: "빵", text: "خُبْزٌ" },
-{ type: "word", meaning: "과일", text: "فَاكِهَةٌ" },
-{ type: "word", meaning: "사과", text: "تُفَّاحَةٌ" },
-{ type: "word", meaning: "바나나", text: "مَوْزَةٌ" },
-{ type: "word", meaning: "오렌지", text: "بُرْتُقَالَةٌ" },
-{ type: "word", meaning: "밥", text: "أَرُزٌّ" },
-{ type: "word", meaning: "고기", text: "لَحْمٌ" },
-{ type: "word", meaning: "닭고기", text: "دَجَاجٌ" },
-{ type: "word", meaning: "생선", text: "سَمَكٌ" },
-
-{ type: "word", meaning: "옷", text: "مَلَابِسُ" },
-{ type: "word", meaning: "신발", text: "حِذَاءٌ" },
-{ type: "word", meaning: "가방", text: "حَقِيبَةٌ" },
-{ type: "word", meaning: "모자", text: "قُبَّعَةٌ" },
-{ type: "word", meaning: "시계", text: "سَاعَةٌ" },
-{ type: "word", meaning: "열쇠", text: "مِفْتَاحٌ" },
-{ type: "word", meaning: "선물", text: "هَدِيَّةٌ" },
-{ type: "word", meaning: "약", text: "دَوَاءٌ" },
-{ type: "word", meaning: "의사", text: "طَبِيبٌ" },
-{ type: "word", meaning: "병원", text: "مُسْتَشْفَى" },
-{ type: "word", meaning: "약국", text: "صَيْدَلِيَّةٌ" },
-{ type: "word", meaning: "시장", text: "سُوقٌ" },
-{ type: "word", meaning: "은행", text: "بَنْكٌ" },
-{ type: "word", meaning: "우체국", text: "مَكْتَبُ الْبَرِيدِ" },
-{ type: "word", meaning: "도서관", text: "مَكْتَبَةٌ" },
-{ type: "word", meaning: "식당", text: "مَطْعَمٌ" },
-{ type: "word", meaning: "카페", text: "مَقْهَى" },
-{ type: "word", meaning: "호텔", text: "فُنْدُقٌ" },
-{ type: "word", meaning: "방", text: "غُرْفَةٌ" },
-{ type: "word", meaning: "욕실", text: "حَمَّامٌ" },
-{ type: "word", meaning: "비", text: "مَطَرٌ" },
-{ type: "word", meaning: "눈(눈송이)", text: "ثَلْجٌ" },
-{ type: "word", meaning: "날씨", text: "طَقْسٌ" },
-{ type: "word", meaning: "여름", text: "صَيْفٌ" },
-{ type: "word", meaning: "겨울", text: "شِتَاءٌ" },
-{ type: "word", meaning: "봄", text: "رَبِيعٌ" },
-{ type: "word", meaning: "가을", text: "خَرِيفٌ" },
-{ type: "word", meaning: "불", text: "نَارٌ" },
-{ type: "word", meaning: "빛", text: "ضَوْءٌ" },
-{ type: "word", meaning: "그림", text: "رَسْمٌ" },
-
-      
       // 짧은 문장
-      { type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِمَعْرِفَتِكَ." },
-       { type: "sentence-short", meaning: "안녕하세요.", text: "السَّلَامُ عَلَيْكُمْ." },
-{ type: "sentence-short", meaning: "좋은 아침입니다.", text: "صَبَاحُ الخَيْرِ." },
-{ type: "sentence-short", meaning: "좋은 저녁입니다.", text: "مَسَاءُ الخَيْرِ." },
-{ type: "sentence-short", meaning: "저는 잘 지내요.", text: "أَنَا بِخَيْرٍ." },
-{ type: "sentence-short", meaning: "당신의 이름은 무엇인가요?", text: "مَا اسْمُكَ؟" },
-{ type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
-{ type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِلِقَائِكَ." },
-{ type: "sentence-short", meaning: "어디에서 왔나요?", text: "مِنْ أَيْنَ أَنْتَ؟" },
-{ type: "sentence-short", meaning: "저는 한국에서 왔어요.", text: "أَنَا مِنْ كُورِيَا." },
-{ type: "sentence-short", meaning: "감사합니다.", text: "شُكْرًا جَزِيلًا." },
+      { type: "sentence-short", meaning: "안녕하세요.", text: "السَّلَامُ عَلَيْكُمْ." },
+      { type: "sentence-short", meaning: "좋은 아침입니다.", text: "صَبَاحُ الخَيْرِ." },
+      { type: "sentence-short", meaning: "좋은 저녁입니다.", text: "مَسَاءُ الخَيْرِ." },
+      { type: "sentence-short", meaning: "저는 잘 지내요.", text: "أَنَا بِخَيْرٍ." },
+      { type: "sentence-short", meaning: "당신의 이름은 무엇인가요?", text: "مَا اسْمُكَ؟" },
+      { type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
+      { type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِلِقَائِكَ." },
+      { type: "sentence-short", meaning: "어디에서 왔나요?", text: "مِنْ أَيْنَ أَنْتَ؟" },
+      { type: "sentence-short", meaning: "저는 한국에서 왔어요.", text: "أَنَا مِنْ كُورِيَا." },
+      { type: "sentence-short", meaning: "감사합니다.", text: "شُكْرًا جَزِيلًا." },
+      { type: "sentence-short", meaning: "죄송합니다.", text: "آسِفٌ." },
+      { type: "sentence-short", meaning: "괜찮아요.", text: "لَا بَأْسَ." },
+      { type: "sentence-short", meaning: "이것은 얼마인가요?", text: "كَمْ سِعْرُ هَذَا؟" },
+      { type: "sentence-short", meaning: "저는 학생입니다.", text: "أَنَا طَالِبٌ." },
+      { type: "sentence-short", meaning: "지금 몇 시인가요?", text: "كَمِ السَّاعَةُ الآنَ؟" },
+      { type: "sentence-short", meaning: "저는 배고파요.", text: "أَنَا جَائِعٌ." },
+      { type: "sentence-short", meaning: "저는 목말라요.", text: "أَنَا عَطْشَانُ." },
+      { type: "sentence-short", meaning: "더 천천히 말해 주세요.", text: "تَحَدَّثْ بِبُطْءٍ مِنْ فَضْلِكَ." },
+      { type: "sentence-short", meaning: "저는 이해했어요.", text: "فَهِمْتُ." },
+      { type: "sentence-short", meaning: "저는 이해하지 못했어요.", text: "لَمْ أَفْهَمْ." },
+      { type: "sentence-short", meaning: "하루가 정말 길었어요.", text: "كَانَ الْيَوْمُ طَوِيلًا جِدًّا." },
+      { type: "sentence-short", meaning: "날씨가 정말 좋아요.", text: "الجَوُّ جَمِيلٌ جِدًّا." },
+      { type: "sentence-short", meaning: "비가 오고 있어요.", text: "إِنَّهُ يَمْطُرُ." },
+      { type: "sentence-short", meaning: "저는 여행을 좋아해요.", text: "أُحِبُّ السَّفَرَ." },
+      { type: "sentence-short", meaning: "사진 찍어도 될까요?", text: "هَلْ يُمْكِنُنِي أَنْ أُصَوِّرَ؟" },
+      { type: "sentence-short", meaning: "도와주셔서 감사합니다.", text: "شُكْرًا عَلَى مُسَاعَدَتِكَ." },
+      { type: "sentence-short", meaning: "행운을 빕니다!", text: "حَظًّا سَعِيدًا!" },
+      { type: "sentence-short", meaning: "조심히 가세요.", text: "اِذْهَبْ بِالسَّلَامَةِ." },
+      { type: "sentence-short", meaning: "곧 다시 만나요.", text: "أَرَاكَ قَرِيبًا." },
+      { type: "sentence-short", meaning: "정말 멋져요!", text: "رَائِعٌ جِدًّا!" },
+      { type: "sentence-short", meaning: "서두르지 않으면 성공한다.", text: "مَنْ جَدَّ وَجَدَ." },
+      { type: "sentence-short", meaning: "지식은 빛이다.", text: "الْعِلْمُ نُورٌ." },
+      { type: "sentence-short", meaning: "인내는 열쇠이다.", text: "الصَّبْرُ مِفْتَاحُ الْفَرَجِ." },
+      { type: "sentence-short", meaning: "손님은 환영받는다.", text: "الضَّيْفُ مَرْحُوبٌ بِهِ." },
+      { type: "sentence-short", meaning: "건강은 축복이다.", text: "الصِّحَّةُ نِعْمَةٌ." },
+      { type: "sentence-short", meaning: "시간은 금이다.", text: "الوَقْتُ ذَهَبٌ." },
+      { type: "sentence-short", meaning: "연습은 완벽을 만든다.", text: "التَّكْرَارُ يُعَلِّمُ الشُّطَّارَ." },
+      { type: "sentence-short", meaning: "천천히 가면 안전하다.", text: "فِي التَّأَنِّي السَّلَامَةُ." },
+      { type: "sentence-short", meaning: "길은 걷는 사람에게 열려 있다.", text: "الطَّرِيقُ لِمَنْ يَمْشِي." },
+      { type: "sentence-short", meaning: "정답보다 진심이 중요하다.", text: "النِّيَّةُ خَيْرٌ مِنَ العَمَلِ." },
 
-{ type: "sentence-short", meaning: "죄송합니다.", text: "آسِفٌ." },
-{ type: "sentence-short", meaning: "괜찮아요.", text: "لَا بَأْسَ." },
-{ type: "sentence-short", meaning: "이것은 얼마인가요?", text: "كَمْ سِعْرُ هَذَا؟" },
-{ type: "sentence-short", meaning: "저는 학생입니다.", text: "أَنَا طَالِبٌ." },
-{ type: "sentence-short", meaning: "지금 몇 시인가요?", text: "كَمِ السَّاعَةُ الآنَ؟" },
-{ type: "sentence-short", meaning: "저는 배고파요.", text: "أَنَا جَائِعٌ." },
-{ type: "sentence-short", meaning: "저는 목말라요.", text: "أَنَا عَطْشَانُ." },
-{ type: "sentence-short", meaning: "더 천천히 말해 주세요.", text: "تَحَدَّثْ بِبُطْءٍ مِنْ فَضْلِكَ." },
-{ type: "sentence-short", meaning: "저는 이해했어요.", text: "فَهِمْتُ." },
-{ type: "sentence-short", meaning: "저는 이해하지 못했어요.", text: "لَمْ أَفْهَمْ." },
-
-{ type: "sentence-short", meaning: "하루가 정말 길었어요.", text: "كَانَ الْيَوْمُ طَوِيلًا جِدًّا." },
-{ type: "sentence-short", meaning: "날씨가 정말 좋아요.", text: "الجَوُّ جَمِيلٌ جِدًّا." },
-{ type: "sentence-short", meaning: "비가 오고 있어요.", text: "إِنَّهُ يَمْطُرُ." },
-{ type: "sentence-short", meaning: "저는 여행을 좋아해요.", text: "أُحِبُّ السَّفَرَ." },
-{ type: "sentence-short", meaning: "사진 찍어도 될까요?", text: "هَلْ يُمْكِنُنِي أَنْ أُصَوِّرَ؟" },
-{ type: "sentence-short", meaning: "도와주셔서 감사합니다.", text: "شُكْرًا عَلَى مُسَاعَدَتِكَ." },
-{ type: "sentence-short", meaning: "행운을 빌어요!", text: "حَظًّا سَعِيدًا!" },
-{ type: "sentence-short", meaning: "조심히 가세요.", text: "اِذْهَبْ بِالسَّلَامَةِ." },
-{ type: "sentence-short", meaning: "곧 다시 만나요.", text: "أَرَاكَ قَرِيبًا." },
-{ type: "sentence-short", meaning: "정말 멋져요!", text: "رَائِعٌ جِدًّا!" },
-
-// 속담/표현
-{ type: "sentence-short", meaning: "서두르지 않으면 성공한다.", text: "مَنْ جَدَّ وَجَدَ." },
-{ type: "sentence-short", meaning: "지식은 빛이다.", text: "الْعِلْمُ نُورٌ." },
-{ type: "sentence-short", meaning: "인내는 열쇠이다.", text: "الصَّبْرُ مِفْتَاحُ الْفَرَجِ." },
-{ type: "sentence-short", meaning: "손님은 환영받는다.", text: "الضَّيْفُ مَرْحُوبٌ بِهِ." },
-{ type: "sentence-short", meaning: "건강은 축복이다.", text: "الصِّحَّةُ نِعْمَةٌ." },
-{ type: "sentence-short", meaning: "시간은 금이다.", text: "الوَقْتُ ذَهَبٌ." },
-{ type: "sentence-short", meaning: "연습은 완벽을 만든다.", text: "التَّكْرَارُ يُعَلِّمُ الشُّطَّارَ." },
-{ type: "sentence-short", meaning: "천천히 가면 안전하다.", text: "فِي التَّأَنِّي السَّلَامَةُ." },
-{ type: "sentence-short", meaning: "길은 걷는 사람에게 열려 있다.", text: "الطَّرِيقُ لِمَنْ يَمْشِي." },
-{ type: "sentence-short", meaning: "정답보다 진심이 중요하다.", text: "النِّيَّةُ خَيْرٌ مِنَ العَمَلِ." },
-
-      // 긴 글 예시
+      // 긴 글
       {
         type: "sentence-long",
         title: "동화 1",
@@ -759,6 +784,10 @@
     let practiceIndex = 0;
     let practiceCurrent = null;
 
+    // 긴 글 모드용 상태
+    let longSentenceIndex = 0;
+    let currentLongSentences = [];
+
     function updatePracticeTopStats(accuracy, typedLen, totalLen) {
       const progressCount = (practiceList && practiceList.length > 0)
         ? (practiceIndex + 1)
@@ -814,10 +843,35 @@
       loadPracticeItem();
     }
 
+    function showCurrentLongSentence() {
+      if (!practiceCurrent) return;
+      const meaningText = practiceCurrent.meaning || practiceCurrent.title || "";
+      const sentence = currentLongSentences[longSentenceIndex] || "";
+      practiceMeaning.textContent = meaningText;
+      practiceTarget.textContent = sentence;
+      practiceTypedDisplay.innerHTML = "";
+      practiceInput.value = "";
+      const baseLen = stripDiacritics(sentence).length;
+      updatePracticeTopStats(100, 0, baseLen);
+
+      document.querySelectorAll(".long-item").forEach((el, i) => {
+        el.classList.toggle("selected", i === practiceIndex);
+      });
+      practiceInput.focus();
+    }
+
     function loadPracticeItem() {
       practiceCurrent = practiceList[practiceIndex];
-      const targetText = practiceCurrent.text || "";
 
+      if (currentMode === "long") {
+        const rawText = practiceCurrent.text || "";
+        currentLongSentences = rawText.split(/\n+/).filter(line => line.trim().length > 0);
+        longSentenceIndex = 0;
+        showCurrentLongSentence();
+        return;
+      }
+
+      const targetText = practiceCurrent.text || "";
       practiceMeaning.textContent = practiceCurrent.meaning || "";
       practiceTarget.textContent = targetText;
       practiceTypedDisplay.innerHTML = "";
@@ -826,19 +880,13 @@
       const baseLen = stripDiacritics(targetText).length;
       updatePracticeTopStats(100, 0, baseLen);
 
-      if (currentMode === "long") {
-        document.querySelectorAll(".long-item").forEach((el, i) => {
-          el.classList.toggle("selected", i === practiceIndex);
-        });
-      }
-
       practiceInput.focus();
     }
 
     function updatePracticeTyping() {
       if (!practiceCurrent) return;
       const typed = practiceInput.value;
-      const target = practiceCurrent.text || "";
+      const target = practiceTarget.textContent || "";
 
       const { html, correctCount, baseLen, typedLen } = colorizeText(target, typed);
       practiceTypedDisplay.innerHTML = html;
@@ -850,17 +898,37 @@
       updatePracticeTopStats(accuracy, typedLen, baseLen);
     }
 
-    practiceInput.addEventListener("input", updatePracticeTyping);// 엔터 키로도 다음 문제로 넘어가기
-practiceInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();        // 줄바꿈 방지
-    practiceNextBtn.click();   // '다음' 버튼 강제로 클릭
-  }
-});
-    practiceNextBtn.addEventListener("click", () => {
+    function goToNextPractice() {
       if (practiceList.length === 0) return;
-      practiceIndex = (practiceIndex + 1) % practiceList.length;
-      loadPracticeItem();
+
+      if (currentMode === "long") {
+        if (currentLongSentences && longSentenceIndex < currentLongSentences.length - 1) {
+          longSentenceIndex++;
+          showCurrentLongSentence();
+          return;
+        } else {
+          practiceIndex = (practiceIndex + 1) % practiceList.length;
+          loadPracticeItem();
+          return;
+        }
+      } else {
+        practiceIndex = (practiceIndex + 1) % practiceList.length;
+        loadPracticeItem();
+      }
+    }
+
+    practiceInput.addEventListener("input", updatePracticeTyping);
+
+    // 엔터로 다음
+    practiceInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        goToNextPractice();
+      }
+    });
+
+    practiceNextBtn.addEventListener("click", () => {
+      goToNextPractice();
     });
 
     setupPracticeMode();
@@ -886,7 +954,7 @@ practiceInput.addEventListener("keydown", (e) => {
       });
     });
 
-    // ---------- 단어 게임 (위 -> 아래) ----------
+    // ---------- 단어 게임 ----------
     const fallWrapper = document.getElementById("fallWrapper");
     const fallTypedDisplay = document.getElementById("fallTypedDisplay");
     const fallInput = document.getElementById("fallInput");
@@ -894,6 +962,33 @@ practiceInput.addEventListener("keydown", (e) => {
     const fallSpeedInfo = document.getElementById("fallSpeedInfo");
     const fallStatus = document.getElementById("fallStatus");
     const fallStartBtn = document.getElementById("fallStartBtn");
+
+    const diffButtons = document.querySelectorAll(".diff-btn");
+    let fallDifficulty = "easy";
+
+    function getFallConfig() {
+      if (fallDifficulty === "easy") {
+        return { speed: 1.0, spawnInterval: 2600 };
+      } else if (fallDifficulty === "normal") {
+        return { speed: 1.6, spawnInterval: 2100 };
+      } else {
+        return { speed: 2.2, spawnInterval: 1700 };
+      }
+    }
+
+    diffButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (fallState.active) {
+          return;
+        }
+        diffButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        fallDifficulty = btn.dataset.level;
+
+        const cfg = getFallConfig();
+        fallSpeedInfo.textContent = `속도: ${cfg.speed.toFixed(1)}x`;
+      });
+    });
 
     let fallState = {
       active: false,
@@ -958,15 +1053,17 @@ practiceInput.addEventListener("keydown", (e) => {
     function startFallGame() {
       if (fallState.active) return;
 
+      const cfg = getFallConfig();
+
       fallState.active = true;
       fallState.score = 0;
-      fallState.speed = 1.0;
+      fallState.speed = cfg.speed;
       fallState.items.forEach(i => i.el.remove());
       fallState.items = [];
       fallState.current = null;
       fallWrapper.innerHTML = "";
       fallScoreTop.textContent = "점수: 0";
-      fallSpeedInfo.textContent = "속도: 1.0x";
+      fallSpeedInfo.textContent = `속도: ${cfg.speed.toFixed(1)}x`;
       fallStatus.textContent = "진행 중...";
       fallTypedDisplay.innerHTML = "";
       fallInput.value = "";
@@ -976,7 +1073,7 @@ practiceInput.addEventListener("keydown", (e) => {
       if (fallState.spawnId) clearInterval(fallState.spawnId);
 
       fallState.timerId = setInterval(updateFallingPosition, 40);
-      fallState.spawnId = setInterval(spawnFallWord, 2200);
+      fallState.spawnId = setInterval(spawnFallWord, cfg.spawnInterval);
 
       spawnFallWord();
     }
@@ -1004,7 +1101,7 @@ practiceInput.addEventListener("keydown", (e) => {
 
       const typed = fallInput.value;
       const target = fallState.current.text;
-      const { html, correctCount, baseLen } = colorizeText(target, typed);
+      const { html } = colorizeText(target, typed);
       fallTypedDisplay.innerHTML = html;
 
       if (stripDiacritics(typed) === stripDiacritics(target)) {
@@ -1057,7 +1154,7 @@ practiceInput.addEventListener("keydown", (e) => {
       timeState.current = getRandomSentence();
       if (!timeState.current) return;
 
-      timeMeaning.textContent = timeState.current.meaning || "";
+      timeMeaning.textContent = timeState.current.meaning || timeState.current.title || "";
       timeTargetDisplay.textContent = timeState.current.text || "";
       timeTypedDisplay.innerHTML = "";
       timeInput.value = "";
@@ -1068,7 +1165,7 @@ practiceInput.addEventListener("keydown", (e) => {
       if (!timeState.active || !timeState.current) return;
 
       const typed = timeInput.value;
-      const target = timeState.current.text;
+      const target = timeTargetDisplay.textContent;
       const { html, correctCount, baseLen, typedLen } = colorizeText(target, typed);
       timeTypedDisplay.innerHTML = html;
 
