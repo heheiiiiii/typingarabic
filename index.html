@@ -1272,7 +1272,9 @@ let currentLongSentencesKor = [];   // ← 이 줄 추가
     const timeSentenceArea = document.getElementById("timeSentenceArea");
 
     gameTabButtons.forEach(btn => {
-  const handler = () => {
+  const handler = (e) => {
+    e.preventDefault();
+
     gameTabButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     const gameType = btn.dataset.game;
@@ -1286,11 +1288,8 @@ let currentLongSentencesKor = [];   // ← 이 줄 추가
     }
   };
 
-  btn.addEventListener("click", handler);
-  btn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    handler();
-  });
+  // 클릭·터치 상관없이 pointerdown 하나로 처리
+  btn.addEventListener("pointerdown", handler);
 });
     // ---------- 단어 게임 ----------
     const fallWrapper = document.getElementById("fallWrapper");
@@ -1314,24 +1313,19 @@ let currentLongSentencesKor = [];   // ← 이 줄 추가
       }
     }
 
-    gameTabButtons.forEach(btn => {
+    diffButtons.forEach(btn => {
   const handler = (e) => {
     e.preventDefault();
+    if (fallState.active) return;
 
-    gameTabButtons.forEach(b => b.classList.remove("active"));
+    diffButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    const gameType = btn.dataset.game;
+    fallDifficulty = btn.dataset.level;
 
-    if (gameType === "fallWord") {
-      fallWordArea.classList.add("active");
-      timeSentenceArea.classList.remove("active");
-    } else {
-      timeSentenceArea.classList.add("active");
-      fallWordArea.classList.remove("active");
-    }
+    const cfg = getFallConfig();
+    fallSpeedInfo.textContent = `속도: ${cfg.speed.toFixed(1)}x`;
   };
 
-  // 클릭·터치 상관없이 pointerdown 하나로 처리
   btn.addEventListener("pointerdown", handler);
 });
 
@@ -1465,11 +1459,11 @@ let currentLongSentencesKor = [];   // ← 이 줄 추가
       }
     }
 
-    fallStartBtn.addEventListener("click", startFallGame);
-fallStartBtn.addEventListener("touchstart", (e) => {
+    fallStartBtn.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   startFallGame();
 });
+    
     fallInput.addEventListener("input", handleFallInput);
 
     // ---------- 문장 타임어택 ----------
@@ -1562,11 +1556,11 @@ fallStartBtn.addEventListener("touchstart", (e) => {
       timeLeftEl.textContent = `시간 종료 · 최종 점수: ${timeState.score}개`;
     }
 
-    timeStartBtn.addEventListener("click", startTimeAttack);
-timeStartBtn.addEventListener("touchstart", (e) => {
+    timeStartBtn.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   startTimeAttack();
 });
+    
     timeInput.addEventListener("input", updateTimeTyping);
   </script>
 </body>
