@@ -234,6 +234,34 @@
       white-space: nowrap;
     }
 
+    .diff-row {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .diff-label {
+      font-weight: 500;
+      color: #444;
+    }
+    .diff-btn {
+      border: 1px solid #cbd0da;
+      background: #e5e7eb;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .diff-btn.active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #fff;
+      font-weight: 600;
+    }
+
     @media (min-width: 768px) {
       .app {
         padding: 24px;
@@ -304,9 +332,17 @@
     <div id="fallWordArea" class="game-area active">
       <div class="game-stats-row">
         <span id="fallScoreTop">점수: 0</span>
-        <span id="fallSpeedInfo">속도: 1.5x</span>
+        <span id="fallSpeedInfo">속도: 1.2x</span>
         <span id="fallStatus">대기 중</span>
       </div>
+
+      <div class="diff-row">
+        <span class="diff-label">난이도:</span>
+        <button class="diff-btn active" data-level="easy">쉬움</button>
+        <button class="diff-btn" data-level="medium">중간</button>
+        <button class="diff-btn" data-level="hard">어려움</button>
+      </div>
+
       <div id="fallWrapper" class="fall-wrapper"></div>
       <div class="input-area">
         <input
@@ -696,7 +732,7 @@
       });
     });
 
-    // ---------------- 단어 게임 (위에서 아래로) ----------------
+    // ---------------- 단어 게임 (위에서 아래로 + 난이도) ----------------
     const fallWrapper = document.getElementById("fallWrapper");
     const fallTypedDisplay = document.getElementById("fallTypedDisplay");
     const fallInput = document.getElementById("fallInput");
@@ -704,14 +740,41 @@
     const fallSpeedInfo = document.getElementById("fallSpeedInfo");
     const fallStatus = document.getElementById("fallStatus");
     const fallStartBtn = document.getElementById("fallStartBtn");
+    const diffButtons = document.querySelectorAll(".diff-btn");
+
+    let fallDifficulty = "easy"; // "easy" | "medium" | "hard"
+
+    function getFallConfig() {
+      if (fallDifficulty === "easy") {
+        return { speed: 1.2, accel: 0.2 };
+      } else if (fallDifficulty === "medium") {
+        return { speed: 1.8, accel: 0.3 };
+      } else {
+        return { speed: 2.4, accel: 0.4 };
+      }
+    }
 
     let fallState = {
       active: false,
       score: 0,
-      speed: 1.5,
+      speed: 1.2,
+      accel: 0.2,
       timerId: null,
       currentItem: null
     };
+
+    diffButtons.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        if (fallState.active) return; // 게임 중엔 변경 금지
+        diffButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        fallDifficulty = btn.dataset.level;
+        const cfg = getFallConfig();
+        fallState.speed = cfg.speed;
+        fallState.accel = cfg.accel;
+        fallSpeedInfo.textContent = "속도: " + cfg.speed.toFixed(1) + "x";
+      });
+    });
 
     function getRandomWord() {
       const list = exercises.filter((ex) => ex.type === "word");
@@ -728,7 +791,6 @@
       el.className = "fall-word";
       el.textContent = data.text;
 
-      // 가운데 근처에서 시작 (좌우 무작위 약간)
       const wrapperWidth = fallWrapper.clientWidth;
       const startX = wrapperWidth * 0.2 + Math.random() * wrapperWidth * 0.6;
 
@@ -764,9 +826,11 @@
     function startFallGame() {
       if (fallState.active) return;
 
+      const cfg = getFallConfig();
       fallState.active = true;
       fallState.score = 0;
-      fallState.speed = 1.5;
+      fallState.speed = cfg.speed;
+      fallState.accel = cfg.accel;
 
       if (fallState.timerId) clearInterval(fallState.timerId);
       fallState.timerId = setInterval(updateFallingPosition, 40);
@@ -779,7 +843,7 @@
       fallInput.value = "";
       fallTypedDisplay.innerHTML = "";
       fallScoreTop.textContent = "점수: 0";
-      fallSpeedInfo.textContent = "속도: 1.5x";
+      fallSpeedInfo.textContent = "속도: " + cfg.speed.toFixed(1) + "x";
       fallStatus.textContent = "진행 중...";
 
       fallInput.focus();
@@ -817,7 +881,7 @@
         // 정답
         fallState.score++;
         fallScoreTop.textContent = "점수: " + fallState.score;
-        fallState.speed += 0.3;
+        fallState.speed += fallState.accel;
         fallSpeedInfo.textContent = "속도: " + fallState.speed.toFixed(1) + "x";
 
         fallState.currentItem.el.remove();
