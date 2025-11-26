@@ -5,1012 +5,934 @@
   <title>아랍어 타자 연습</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f3f3f3;
-      color: #111;
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-      min-height: 100vh;
-      padding: 20px;
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: #f4f5f7;
+      color: #222;
     }
-
-    .container {
-      width: 100%;
-      max-width: 1100px;
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px 24px 28px;
-      box-shadow: 0 10px 26px rgba(0,0,0,0.08);
-      display: flex;
-      flex-direction: column;
-      min-height: 90vh;
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
     }
-
     .app-title {
       text-align: center;
+      margin: 8px 0 12px;
       font-size: 1.6rem;
       font-weight: 700;
-      margin-bottom: 14px;
     }
-
     .main-tabs {
       display: flex;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 18px;
-      flex-wrap: nowrap;
-      white-space: nowrap;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
     }
-
     .main-tab-btn {
-      padding: 6px 12px;
+      border: none;
+      padding: 8px 14px;
       border-radius: 999px;
-      border: 1px solid #ccc;
-      background: #fafafa;
-      font-size: 0.85rem;
+      background: #e1e3e8;
       cursor: pointer;
+      font-size: 0.9rem;
     }
-
     .main-tab-btn.active {
-      background: #2196f3;
-      border-color: #2196f3;
+      background: #2563eb;
       color: #fff;
+      font-weight: 600;
     }
-
-    .tab-section { flex: 1; display: none; }
-    .tab-section.active {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      min-height: 0;
+    .panel {
+      display: none;
     }
-
+    .panel.active {
+      display: block;
+    }
     .mode-title {
       text-align: center;
-      font-size: 1.25rem;
+      margin: 4px 0 8px;
+      font-size: 1.1rem;
       font-weight: 600;
-      margin-bottom: 10px;
     }
-
     .top-stats {
       text-align: right;
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 4px;
-    }
-
-    .center-wrap {
-      max-width: 780px;
-      margin: 0 auto;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      flex: 1;
-    }
-
-    .info-text {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 4px;
-    }
-
-    .box {
-      background: #f1f1f1;
-      border-radius: 10px;
-      padding: 12px 14px;
-      text-align: center;
-    }
-
-    .combined-box { display: flex; flex-direction: column; gap: 6px; }
-
-    .meaning-line { font-size: 1rem; color: #333; }
-
-    .arabic-line {
-      font-size: 1.6rem;
-      direction: rtl;
-      text-align: center;
-      color: #111;
-      word-wrap: break-word;
-      line-height: 1.8;
-      white-space: pre-line;
-    }
-
-    .typed-display {
-      min-height: 34px;
-      font-size: 1.6rem;
-      direction: rtl;
-      text-align: center;
-      word-wrap: break-word;
-      line-height: 1.8;
-    }
-
-    .input-area { margin-top: 6px; }
-
-    .typing-input {
-      width: 100%;
-      max-width: 640px;
-      padding: 10px 12px;
-      font-size: 1.2rem;
-      direction: rtl;
-      text-align: center;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
-
-    .typing-input:focus {
-      border-color: #2196f3;
-      box-shadow: 0 0 0 2px rgba(33,150,243,0.12);
-    }
-
-    .bottom-row {
-      margin-top: 14px;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
-      color: #666;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: none;
-      background: #2196f3;
-      color: #fff;
-      cursor: pointer;
-      font-size: 0.9rem;
-      white-space: nowrap;
-    }
-
-    .btn:active { transform: translateY(1px); }
-
-    .correct-char { color: #111; }
-    .wrong-char { color: #e53935; }
-
-    .long-selector { display: none; text-align: left; }
-    .long-selector.active { display: block; }
-
-    .long-selector-title {
-      font-size: 0.9rem;
-      color: #444;
-      margin-bottom: 4px;
-    }
-
-    .long-list {
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      background: #fafafa;
-      max-height: 170px;
-      overflow-y: auto;
-      padding: 4px 0;
-    }
-
-    .long-item {
-      padding: 6px 10px;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-
-    .long-item:hover { background: #e3f2fd; }
-    .long-item.selected { background: #bbdefb; font-weight: 600; }
-
-    .game-title {
-      text-align: center;
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .game-desc {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 14px;
-    }
-
-    .game-inner-tabs {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
-    .game-tab-btn {
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid #ccc;
-      background: #fafafa;
       font-size: 0.85rem;
-      cursor: pointer;
+      color: #555;
+      margin-bottom: 8px;
     }
 
-    .game-tab-btn.active {
-      background: #ff9800;
-      border-color: #ff9800;
-      color: #fff;
+    .long-selector {
+      margin-bottom: 8px;
+      display: none;
     }
-
-    .game-content { flex: 1; display: none; flex-direction: column; }
-    .game-content.active { display: flex; flex-direction: column; }
-
-    .game-center-wrap {
-      max-width: 780px;
-      margin: 0 auto;
-      flex: 1;
+    .long-selector.active {
+      display: block;
+    }
+    .long-list {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-      text-align: center;
-    }
-
-    .game-typed-display {
-      min-height: 30px;
-      font-size: 1.5rem;
-      direction: rtl;
-      text-align: center;
-      word-wrap: break-word;
-      line-height: 1.7;
-    }
-
-    .game-input {
-      width: 100%;
-      max-width: 640px;
-      padding: 8px 11px;
-      font-size: 1.1rem;
-      direction: rtl;
-      text-align: center;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
-
-    .game-input:focus {
-      border-color: #ff9800;
-      box-shadow: 0 0 0 2px rgba(255,152,0,0.18);
-    }
-
-    .game-top-stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 4px;
-    }
-
-    .game-stats-row {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
       flex-wrap: wrap;
-      font-size: 0.9rem;
-      color: #666;
-      align-items: center;
+      gap: 4px;
+      justify-content: center;
+    }
+    .long-item {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      border: 1px solid #d0d4dc;
+      cursor: pointer;
+      background: #fff;
+    }
+    .long-item.selected {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #fff;
+      font-weight: 600;
     }
 
-    .fall-wrapper {
-      position: relative;
-      height: 320px;
-      overflow: hidden;
+    .practice-card {
+      background: #fff;
       border-radius: 12px;
-      background: #fafafa;
-      margin-top: 6px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    }
+    .practice-block {
+      background: #f1f3f7;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .practice-meaning {
+      font-size: 0.9rem;
       margin-bottom: 4px;
-    }
-
-    .fall-word {
-      position: absolute;
-      left: 0;
-      top: -40px;
-      font-size: 1.9rem;
-      direction: rtl;
-      text-align: center;
-      white-space: nowrap;
-      transform: translateX(-50%);
-    }
-
-    .game-arabic-box {
-      background: #f1f1f1;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 1.5rem;
-      direction: rtl;
-      text-align: center;
-      color: #111;
-      word-wrap: break-word;
-      line-height: 1.7;
-      white-space: pre-line;
-    }
-
-    .game-meaning-box {
-      background: #f1f1f1;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 0.95rem;
       color: #333;
     }
+    .practice-target {
+      font-size: 1.2rem;
+      direction: rtl;
+      font-weight: 600;
+    }
+    .input-area {
+      margin-top: 8px;
+    }
+    #practiceInput,
+    #fallInput,
+    #timeInput {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #cbd0da;
+      font-size: 1rem;
+      direction: rtl;
+    }
+    #practiceInput:focus,
+    #fallInput:focus,
+    #timeInput:focus {
+      outline: 2px solid #2563eb33;
+      border-color: #2563eb;
+    }
+    .typed-display {
+      margin-top: 6px;
+      min-height: 22px;
+      font-size: 1rem;
+      direction: rtl;
+      text-align: right;
+      word-break: break-all;
+    }
+    .correct-char {
+      color: #15803d;
+    }
+    .wrong-char {
+      color: #dc2626;
+    }
+    .practice-footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .btn {
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn.wide {
+      width: 100%;
+      justify-content: center;
+      display: inline-flex;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .btn:active {
+      transform: translateY(1px);
+    }
 
-    @media (max-width: 768px) {
-      body { padding: 10px; }
-      .container { padding: 16px 16px 22px; min-height: 100vh; }
-      .app-title { font-size: 1.4rem; }
-      .arabic-line,
-      .typed-display,
-      .game-arabic-box,
-      .game-typed-display,
-      .fall-word { font-size: 1.4rem; }
-      .typing-input,
-      .game-input { font-size: 1.05rem; }
-      .fall-wrapper { height: 260px; }
+    /* 게임 모드 */
+    .game-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .game-tab-btn {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #e1e3e8;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .game-tab-btn.active {
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+    }
+    .game-area {
+      display: none;
+    }
+    .game-area.active {
+      display: block;
+    }
+    .game-stats-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #444;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .game-stats-column {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+    .fall-wrapper {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      background: #111827;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .fall-word {
+      position: absolute;
+      font-size: 1.1rem;
+      color: #f9fafb;
+      direction: rtl;
+      white-space: nowrap;
+    }
+
+    @media (min-width: 768px) {
+      .app {
+        padding: 24px;
+      }
+      .practice-card {
+        padding: 16px;
+      }
+      .fall-wrapper {
+        height: 260px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="app-title">아랍어 타자 연습</h1>
+<div class="app">
+  <h1 class="app-title">아랍어 타자 연습</h1>
 
-    <div class="main-tabs">
-      <button class="main-tab-btn active" data-tab="word">단어</button>
-      <button class="main-tab-btn" data-tab="short">문장</button>
-      <button class="main-tab-btn" data-tab="long">긴 글</button>
-      <button class="main-tab-btn" data-tab="game">게임 모드</button>
-    </div>
-
-    <!-- 연습 섹션 -->
-    <section class="tab-section active" id="practiceSection">
-      <div class="mode-title" id="modeTitle">단어</div>
-
-      <div class="center-wrap">
-        <div class="top-stats">
-          <span id="practiceTopStats">진행도: 0개 · 정확도: 100% · 0 / 0 글자</span>
-        </div>
-
-        <div class="long-selector" id="longSelector">
-          <div class="long-selector-title">긴 글 선택</div>
-          <div class="long-list" id="longList"></div>
-        </div>
-
-        <div>
-          <div class="box combined-box">
-            <div class="meaning-line" id="practiceMeaning">제 이름은 지훈입니다.</div>
-            <div class="arabic-line" id="practiceTarget">اِسْمِي جِهُون.</div>
-          </div>
-        </div>
-
-        <div>
-          <div class="info-text">타이핑 결과</div>
-          <div class="typed-display" id="practiceTypedDisplay"></div>
-        </div>
-
-        <div class="input-area">
-          <input
-            id="practiceInput"
-            class="typing-input"
-            type="text"
-            dir="rtl"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="bottom-row">
-          <button class="btn" id="practiceNextBtn">다음</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 게임 섹션 -->
-    <section class="tab-section" id="gameSection">
-      <div class="game-title">게임 모드</div>
-      <div class="game-desc">단어 낙하 게임과 문장 타임어택으로 연습해 보세요.</div>
-
-      <div class="game-inner-tabs">
-        <button class="game-tab-btn active" data-game="fallWord">단어 게임</button>
-        <button class="game-tab-btn" data-game="timeSentence">문장 게임</button>
-      </div>
-
-      <!-- 단어 게임 -->
-      <div class="game-content active" id="fallWordArea">
-        <div class="game-center-wrap">
-          <div class="game-top-stats">
-            <span id="fallScoreTop">점수: 0</span>
-            <span id="fallSpeedInfo">속도: 1.5x</span>
-          </div>
-
-          <div class="fall-wrapper" id="fallWrapper"></div>
-
-          <div>
-            <div class="info-text">타이핑 결과</div>
-            <div class="game-typed-display" id="fallTypedDisplay"></div>
-          </div>
-
-          <div class="input-area">
-            <input
-              id="fallInput"
-              class="game-input"
-              type="text"
-              dir="rtl"
-              autocomplete="off"
-            />
-          </div>
-
-          <div class="game-stats-row">
-            <div id="fallStatus">준비 완료</div>
-            <div>
-              <button class="btn" id="fallStartBtn">게임 시작</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 문장 게임 -->
-      <div class="game-content" id="timeSentenceArea">
-        <div class="game-center-wrap">
-          <div class="game-top-stats">
-            <span id="timeLeft">남은 시간: 30초</span>
-            <span id="timeScore">완료한 문제: 0개</span>
-            <span id="timeAccuracy">정확도: 100%</span>
-          </div>
-
-          <div>
-            <div class="game-meaning-box" id="timeMeaning">한국어 뜻이 여기에 표시됩니다.</div>
-          </div>
-
-          <div>
-            <div class="info-text">아랍어</div>
-            <div class="game-arabic-box" id="timeTargetDisplay"></div>
-          </div>
-
-          <div>
-            <div class="info-text">타이핑 결과</div>
-            <div class="game-typed-display" id="timeTypedDisplay"></div>
-          </div>
-
-          <div class="input-area">
-            <input
-              id="timeInput"
-              class="game-input"
-              type="text"
-              dir="rtl"
-              autocomplete="off"
-            />
-          </div>
-
-          <div class="game-stats-row">
-            <div></div>
-            <div>
-              <button class="btn" id="timeStartBtn">시작</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+  <div class="main-tabs">
+    <button class="main-tab-btn active" data-tab="word">단어</button>
+    <button class="main-tab-btn" data-tab="short">문장</button>
+    <button class="main-tab-btn" data-tab="long">긴 글</button>
+    <button class="main-tab-btn" data-tab="game">게임 모드</button>
   </div>
 
- <script>
-  // ---------- 공통 유틸 ----------
-  function stripDiacritics(str) {
-    // 아랍어 모음부호(타쉬킬) 제거
-    return str.replace(/[\u0610-\u061A\u064B-\u0652\u0670\u06D6-\u06ED]/g, "");
-  }
+  <!-- 연습 섹션 -->
+  <section id="practiceSection" class="panel active">
+    <h2 id="modeTitle" class="mode-title">단어</h2>
+    <div id="practiceTopStats" class="top-stats">
+      진행도: 0개 · 정확도: 100% · 0 / 0 글자
+    </div>
 
-  function shuffleArray(arr) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+    <div id="longSelector" class="long-selector">
+      <div id="longList" class="long-list"></div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-block">
+        <div id="practiceMeaning" class="practice-meaning">뜻</div>
+        <div id="practiceTarget" class="practice-target">عَرَبِيّ</div>
+      </div>
+
+      <div class="input-area">
+        <input
+          id="practiceInput"
+          type="text"
+          placeholder="여기에 타이핑하세요"
+          autocomplete="off"
+        />
+        <div id="practiceTypedDisplay" class="typed-display"></div>
+      </div>
+
+      <div class="practice-footer">
+        <button id="practiceNextBtn" class="btn">다음</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 게임 섹션 -->
+  <section id="gameSection" class="panel">
+    <h2 class="mode-title">게임 모드</h2>
+
+    <div class="game-tabs">
+      <button class="game-tab-btn active" data-game="fallWord">단어 게임</button>
+      <button class="game-tab-btn" data-game="timeSentence">문장 게임</button>
+    </div>
+
+    <!-- 단어 게임 -->
+    <div id="fallWordArea" class="game-area active">
+      <div class="game-stats-row">
+        <span id="fallScoreTop">점수: 0</span>
+        <span id="fallSpeedInfo">속도: 1.5x</span>
+        <span id="fallStatus">대기 중</span>
+      </div>
+      <div id="fallWrapper" class="fall-wrapper"></div>
+      <div class="input-area">
+        <input
+          id="fallInput"
+          type="text"
+          placeholder="떨어지는 단어를 입력하세요"
+          autocomplete="off"
+        />
+        <div id="fallTypedDisplay" class="typed-display"></div>
+      </div>
+      <button id="fallStartBtn" class="btn wide">게임 시작</button>
+    </div>
+
+    <!-- 문장 타임어택 -->
+    <div id="timeSentenceArea" class="game-area">
+      <div class="game-stats-column">
+        <span id="timeLeft">남은 시간: 30초</span>
+        <span id="timeScore">완료한 문제: 0개</span>
+        <span id="timeAccuracy">정확도: 100%</span>
+      </div>
+      <div class="practice-block">
+        <div id="timeMeaning" class="practice-meaning">문장 뜻</div>
+        <div id="timeTargetDisplay" class="practice-target">문장</div>
+      </div>
+      <div class="input-area">
+        <input
+          id="timeInput"
+          type="text"
+          placeholder="문장을 입력하세요"
+          autocomplete="off"
+        />
+        <div id="timeTypedDisplay" class="typed-display"></div>
+      </div>
+      <button id="timeStartBtn" class="btn wide">시작</button>
+    </div>
+  </section>
+</div>
+
+<script>
+  window.addEventListener("DOMContentLoaded", function () {
+    // ---------------- 공통 유틸 ----------------
+    function stripDiacritics(str) {
+      // 아랍어 모음부호 제거
+      return str.replace(/[\u0610-\u061A\u064B-\u0652\u0670\u06D6-\u06ED]/g, "");
     }
-    return a;
-  }
 
-  function colorizeText(target, typed) {
-    const baseTarget = stripDiacritics(target);   // 자음 기준 목표
-    let html = "";
-    let correctCount = 0;
-
-    for (let i = 0; i < typed.length; i++) {
-      const ch = typed[i];
-      const tgt = baseTarget[i] || "";
-      if (ch === tgt) {
-        html += '<span class="correct-char">' + ch + '</span>';
-        correctCount++;
-      } else {
-        html += '<span class="wrong-char">' + ch + '</span>';
+    function shuffleArray(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
       }
+      return a;
     }
 
-    const baseLen = baseTarget.length;
-    return { html, correctCount, baseLen };
-  }
+    function colorizeText(target, typed) {
+      const baseTarget = stripDiacritics(target);
+      let html = "";
+      let correctCount = 0;
 
-  // ---------- 문제 데이터 ----------
-  const exercises = [
-    // 단어
-    { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
-    { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
-    { type: "word", meaning: "친구", text: "صَدِيقٌ" },
+      for (let i = 0; i < typed.length; i++) {
+        const ch = typed[i];
+        const t = baseTarget[i] || "";
+        if (ch === t) {
+          html += '<span class="correct-char">' + ch + "</span>";
+          correctCount++;
+        } else {
+          html += '<span class="wrong-char">' + ch + "</span>";
+        }
+      }
+      const baseLen = baseTarget.length;
+      return { html, correctCount, baseLen };
+    }
 
-    // 짧은 문장
-    { type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
-    { type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِمَعْرِفَتِكَ." },
+    // ---------------- 연습용 데이터 ----------------
+    const exercises = [
+      // 단어 (예시)
+      { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
+      { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
+      { type: "word", meaning: "친구", text: "صَدِيقٌ" },
+      { type: "word", meaning: "물", text: "مَاءٌ" },
+      { type: "word", meaning: "집", text: "بَيْتٌ" },
 
-    // 긴 글 예시 1
-    {
-      type: "sentence-long",
-      title: "동화 1",
-      meaning: "여름날 학교에 가는 소년의 이야기",
-      text:
+      // 짧은 문장 (예시)
+      { type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
+      { type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِمَعْرِفَتِكَ." },
+      { type: "sentence-short", meaning: "오늘 날씨가 좋습니다.", text: "اَلْجَوُّ جَمِيلٌ الْيَوْمَ." },
+
+      // 긴 글 1 - 동화
+      {
+        type: "long",
+        title: "동화 1 - 여름날 학교 가는 소년",
+        meaning: "여름날 학교에 가는 소년의 이야기",
+        text:
 "فِي يَوْمٍ مِنَ الأَيَّامِ ذَهَبَ وَلَدٌ صَغِيرٌ إِلَى الْمَدْرَسَةِ.\n" +
 "كَانَ يَحْمِلُ فِي حَقِيبَتِهِ كِتَابَ الْقِصَصِ الَّذِي يُحِبُّهُ جِدًّا.\n" +
-"فِي طَرِيقِهِ قَابَلَ صَدِيقَهُ فِي الْحَيِّ، وَتَحَدَّثَا عَنِ الْأَحْلَامِ وَالْمُسْتَقْبَلِ."
-    },
-    // 긴 글 예시 2
-    {
-      type: "sentence-long",
-      title: "뉴스 1",
-      meaning: "아랍어 교육 프로그램 개설에 관한 뉴스",
-      text:
+"فِي طَرِيقِهِ قَابَلَ صَدِيقَهُ فِي الْحَيِّ، وَتَحَدَّثَا عَنِ الْأَحْلَامِ وَالْمُسْتَقْبَلِ.",
+        korText:
+"어느 날 한 소년이 학교에 갔습니다.\n" +
+"그는 자신이 아주 좋아하는 이야기책을 가방에 넣고 있었습니다.\n" +
+"가는 길에 동네 친구를 만나 꿈과 미래에 대해 이야기했습니다."
+      },
+
+      // 긴 글 2 - 뉴스
+      {
+        type: "long",
+        title: "뉴스 1 - 아랍어 교육 프로그램",
+        meaning: "아랍어 교육 프로그램 개설 뉴스",
+        text:
 "أَعْلَنَتِ الْجَامِعَةُ الْيَوْمَ عَنْ بَرْنَامَجٍ جَدِيدٍ لِتَعْلِيمِ اللُّغَةِ الْعَرَبِيَّةِ.\n" +
 "يَهْدِفُ الْبَرْنَامَجُ إِلَى مُسَاعَدَةِ الطُّلَّابِ عَلَى التَّحَدُّثِ وَالْكِتَابَةِ بِطَلَاقَةٍ.\n" +
-"سَيَبْدَأُ التَّسْجِيلُ فِي الشَّهْرِ الْمُقْبِلِ وَسَيَكُونُ مَجَّانِيًّا لِجَمِيعِ الطُّلَّابِ."
-    }
-  ];
-
-  // ---------- 상단 탭 ----------
-  const mainTabButtons = document.querySelectorAll(".main-tab-btn");
-  const practiceSection = document.getElementById("practiceSection");
-  const gameSection = document.getElementById("gameSection");
-  let currentMode = "word";
-
-  mainTabButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      mainTabButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const tab = btn.dataset.tab;
-
-      if (tab === "game") {
-        practiceSection.classList.remove("active");
-        gameSection.classList.add("active");
-      } else {
-        gameSection.classList.remove("active");
-        practiceSection.classList.add("active");
-        currentMode = tab;
-        setupPracticeMode();
+"سَيَبْدَأُ التَّسْجِيلُ فِي الشَّهْرِ الْمُقْبِلِ وَسَيَكُونُ مَجَّانِيًّا لِجَمِيعِ الطُّلَّابِ.",
+        korText:
+"대학교는 오늘 새로운 아랍어 교육 프로그램을 발표했습니다.\n" +
+"이 프로그램은 학생들이 유창하게 말하고 쓸 수 있도록 돕는 것을 목표로 합니다.\n" +
+"등록은 다음 달에 시작되며 모든 학생에게 무료로 제공될 예정입니다."
       }
-    });
-  });
+    ];
 
-  // ---------- 연습 모드 ----------
-  const modeTitle = document.getElementById("modeTitle");
-  const practiceMeaning = document.getElementById("practiceMeaning");
-  const practiceTarget = document.getElementById("practiceTarget");
-  const practiceTypedDisplay = document.getElementById("practiceTypedDisplay");
-  const practiceInput = document.getElementById("practiceInput");
-  const practiceTopStats = document.getElementById("practiceTopStats");
-  const longSelector = document.getElementById("longSelector");
-  const longListEl = document.getElementById("longList");
-  const practiceNextBtn = document.getElementById("practiceNextBtn");
+    // ---------------- 상단 탭 ----------------
+    const mainTabButtons = document.querySelectorAll(".main-tab-btn");
+    const practiceSection = document.getElementById("practiceSection");
+    const gameSection = document.getElementById("gameSection");
+    let currentMode = "word"; // "word" | "short" | "long"
 
-  let practiceList = [];
-  let practiceIndex = 0;
-  let practiceCurrent = null;
+    mainTabButtons.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        mainTabButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = btn.dataset.tab;
 
-  function updatePracticeTopStats(accuracy, typedLen, totalLen) {
-    const progressCount = (practiceList && practiceList.length > 0)
-      ? (practiceIndex + 1)
-      : 0;
-    practiceTopStats.textContent =
-      "진행도: " + progressCount + "개 · 정확도: " +
-      accuracy + "% · " + typedLen + " / " + totalLen + " 글자";
-  }
-
-  function buildLongList() {
-    longListEl.innerHTML = "";
-    practiceList.forEach((item, idx) => {
-      const div = document.createElement("div");
-      div.className = "long-item" + (idx === practiceIndex ? " selected" : "");
-      const title = item.title || item.meaning || ("긴 글 " + (idx + 1));
-      div.textContent = title;
-      div.addEventListener("click", () => {
-        practiceIndex = idx;
-        loadPracticeItem();
-        document.querySelectorAll(".long-item").forEach((el, i) => {
-          el.classList.toggle("selected", i === practiceIndex);
-        });
+        if (tab === "game") {
+          practiceSection.classList.remove("active");
+          gameSection.classList.add("active");
+        } else {
+          gameSection.classList.remove("active");
+          practiceSection.classList.add("active");
+          currentMode = tab; // "word", "short", "long"
+          setupPracticeMode();
+        }
       });
-      longListEl.appendChild(div);
     });
-  }
 
-  function setupPracticeMode() {
-    if (currentMode === "word") {
-      modeTitle.textContent = "단어";
-      practiceList = shuffleArray(exercises.filter(ex => ex.type === "word"));
-      longSelector.classList.remove("active");
-    } else if (currentMode === "short") {
-      modeTitle.textContent = "문장";
-      practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-short"));
-      longSelector.classList.remove("active");
-    } else {
-      modeTitle.textContent = "긴 글";
-      practiceList = exercises.filter(ex => ex.type === "sentence-long"); // 긴 글은 순서 유지
-      longSelector.classList.add("active");
-      buildLongList();
+    // ---------------- 연습 모드 ----------------
+    const modeTitle = document.getElementById("modeTitle");
+    const practiceMeaning = document.getElementById("practiceMeaning");
+    const practiceTarget = document.getElementById("practiceTarget");
+    const practiceTypedDisplay = document.getElementById("practiceTypedDisplay");
+    const practiceInput = document.getElementById("practiceInput");
+    const practiceTopStats = document.getElementById("practiceTopStats");
+    const longSelector = document.getElementById("longSelector");
+    const longListEl = document.getElementById("longList");
+    const practiceNextBtn = document.getElementById("practiceNextBtn");
+
+    let practiceList = [];
+    let practiceIndex = 0;
+    let practiceCurrent = null;
+
+    // 긴 글 전용 상태
+    let currentLongSentences = [];
+    let currentLongKor = [];
+    let longSentenceIndex = 0;
+
+    function updatePracticeTopStats(accuracy, typedLen, totalLen) {
+      if (currentMode === "long" && currentLongSentences.length > 0) {
+        const cur = longSentenceIndex + 1;
+        const total = currentLongSentences.length;
+        practiceTopStats.textContent =
+          "진행도: " +
+          cur +
+          " / " +
+          total +
+          " 문장 · 정확도: " +
+          accuracy +
+          "% · " +
+          typedLen +
+          " / " +
+          totalLen +
+          " 글자";
+      } else {
+        const progressCount =
+          practiceList && practiceList.length > 0 ? practiceIndex + 1 : 0;
+        practiceTopStats.textContent =
+          "진행도: " +
+          progressCount +
+          "개 · 정확도: " +
+          accuracy +
+          "% · " +
+          typedLen +
+          " / " +
+          totalLen +
+          " 글자";
+      }
     }
 
-    if (practiceList.length === 0) {
-      practiceMeaning.textContent = "연습할 문장이 없습니다.";
-      practiceTarget.textContent = "";
+    function buildLongList() {
+      longListEl.innerHTML = "";
+      practiceList.forEach((item, idx) => {
+        const div = document.createElement("div");
+        div.className = "long-item" + (idx === practiceIndex ? " selected" : "");
+        const title = item.title || item.meaning || "긴 글 " + (idx + 1);
+        div.textContent = title;
+        div.addEventListener("click", function () {
+          practiceIndex = idx;
+          loadPracticeItem();
+          document.querySelectorAll(".long-item").forEach((el, i) => {
+            el.classList.toggle("selected", i === practiceIndex);
+          });
+        });
+        longListEl.appendChild(div);
+      });
+    }
+
+    function setupPracticeMode() {
+      if (currentMode === "word") {
+        modeTitle.textContent = "단어";
+        practiceList = shuffleArray(exercises.filter((ex) => ex.type === "word"));
+        longSelector.classList.remove("active");
+      } else if (currentMode === "short") {
+        modeTitle.textContent = "문장";
+        practiceList = shuffleArray(
+          exercises.filter((ex) => ex.type === "sentence-short")
+        );
+        longSelector.classList.remove("active");
+      } else {
+        modeTitle.textContent = "긴 글";
+        practiceList = exercises.filter((ex) => ex.type === "long"); // 순서 유지
+        longSelector.classList.add("active");
+        buildLongList();
+      }
+
+      if (practiceList.length === 0) {
+        practiceMeaning.textContent = "연습할 문장이 없습니다.";
+        practiceTarget.textContent = "";
+        practiceTypedDisplay.innerHTML = "";
+        practiceInput.value = "";
+        updatePracticeTopStats(100, 0, 0);
+        return;
+      }
+
+      practiceIndex = 0;
+      loadPracticeItem();
+    }
+
+    function prepareLongCurrent() {
+      if (!practiceCurrent) return;
+      const rawText = practiceCurrent.text || "";
+      currentLongSentences = rawText
+        .split(/\n+/)
+        .filter((line) => line.trim().length > 0);
+
+      const rawKor = practiceCurrent.korText || "";
+      currentLongKor = rawKor
+        ? rawKor.split(/\n+/).filter((line) => line.trim().length > 0)
+        : [];
+
+      longSentenceIndex = 0;
+    }
+
+    function showCurrentLongSentence() {
+      if (!practiceCurrent || currentLongSentences.length === 0) return;
+      const sentence = currentLongSentences[longSentenceIndex] || "";
+
+      let meaningLine = "";
+      if (
+        currentLongKor.length > 0 &&
+        longSentenceIndex < currentLongKor.length
+      ) {
+        meaningLine = currentLongKor[longSentenceIndex];
+      } else {
+        meaningLine =
+          practiceCurrent.meaning || practiceCurrent.title || "긴 글 연습";
+      }
+
+      practiceMeaning.textContent = meaningLine;
+      practiceTarget.textContent = sentence;
+
       practiceTypedDisplay.innerHTML = "";
       practiceInput.value = "";
-      updatePracticeTopStats(100, 0, 0);
-      return;
-    }
 
-    practiceIndex = 0;
-    loadPracticeItem();
-  }
+      const baseLen = stripDiacritics(sentence).length;
+      updatePracticeTopStats(100, 0, baseLen);
 
-  function loadPracticeItem() {
-    practiceCurrent = practiceList[practiceIndex];
-    const targetText = practiceCurrent.text || "";
-
-    practiceMeaning.textContent = practiceCurrent.meaning || "";
-    practiceTarget.textContent = targetText;
-    practiceTypedDisplay.innerHTML = "";
-    practiceInput.value = "";
-
-    const baseLen = stripDiacritics(targetText).length;
-    updatePracticeTopStats(100, 0, baseLen);
-
-    if (currentMode === "long") {
       document.querySelectorAll(".long-item").forEach((el, i) => {
         el.classList.toggle("selected", i === practiceIndex);
       });
+
+      practiceInput.focus();
     }
 
-    practiceInput.focus();
-  }
+    function loadPracticeItem() {
+      practiceCurrent = practiceList[practiceIndex];
 
-  function updatePracticeTyping() {
-    if (!practiceCurrent) return;
-    const typed = practiceInput.value;
-    const target = practiceCurrent.text || "";
-
-    const result = colorizeText(target, typed);
-    const html = result.html;
-    const correctCount = result.correctCount;
-    const baseLen = result.baseLen;
-
-    practiceTypedDisplay.innerHTML = html;
-
-    const totalTyped = typed.length;
-    const accuracy = totalTyped === 0
-      ? 100
-      : Math.round((correctCount / totalTyped) * 100);
-
-    updatePracticeTopStats(accuracy, totalTyped, baseLen);
-  }
-
-  function goToNextPractice() {
-    if (practiceList.length === 0) return;
-    practiceIndex = (practiceIndex + 1) % practiceList.length;
-    loadPracticeItem();
-  }
-
-  practiceInput.addEventListener("input", updatePracticeTyping);
-  // 엔터로도 다음 문제
-  practiceInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      goToNextPractice();
-    }
-  });
-  // 다음 버튼으로도 이동
-  practiceNextBtn.addEventListener("click", goToNextPractice);
-
-  // 최초 로딩 시 단어 모드
-  setupPracticeMode();
-
-  // ---------- 게임 탭 전환 ----------
-  const gameTabButtons = document.querySelectorAll(".game-tab-btn");
-  const fallWordArea = document.getElementById("fallWordArea");
-  const timeSentenceArea = document.getElementById("timeSentenceArea");
-
-  gameTabButtons.forEach(btn => {
-    const handler = function (e) {
-      e.preventDefault();
-      gameTabButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      const gameType = btn.dataset.game;
-
-      if (gameType === "fallWord") {
-        fallWordArea.classList.add("active");
-        timeSentenceArea.classList.remove("active");
-      } else {
-        timeSentenceArea.classList.add("active");
-        fallWordArea.classList.remove("active");
+      if (currentMode === "long") {
+        prepareLongCurrent();
+        showCurrentLongSentence();
+        return;
       }
+
+      const targetText = practiceCurrent.text || "";
+      practiceMeaning.textContent = practiceCurrent.meaning || "";
+      practiceTarget.textContent = targetText;
+      practiceTypedDisplay.innerHTML = "";
+      practiceInput.value = "";
+
+      const baseLen = stripDiacritics(targetText).length;
+      updatePracticeTopStats(100, 0, baseLen);
+
+      practiceInput.focus();
+    }
+
+    function updatePracticeTyping() {
+      if (!practiceCurrent) return;
+      const typed = practiceInput.value;
+
+      let targetText = "";
+      if (currentMode === "long") {
+        targetText = currentLongSentences[longSentenceIndex] || "";
+      } else {
+        targetText = practiceCurrent.text || "";
+      }
+
+      const result = colorizeText(targetText, typed);
+      practiceTypedDisplay.innerHTML = result.html;
+
+      const totalTyped = typed.length;
+      const accuracy =
+        totalTyped === 0
+          ? 100
+          : Math.round((result.correctCount / totalTyped) * 100);
+
+      updatePracticeTopStats(accuracy, totalTyped, result.baseLen);
+    }
+
+    function goToNextPractice() {
+      if (practiceList.length === 0) return;
+
+      if (currentMode === "long") {
+        // 같은 글 안에서 다음 문장
+        if (longSentenceIndex < currentLongSentences.length - 1) {
+          longSentenceIndex++;
+          showCurrentLongSentence();
+        } else {
+          // 다음 긴 글로 이동
+          practiceIndex = (practiceIndex + 1) % practiceList.length;
+          practiceCurrent = practiceList[practiceIndex];
+          prepareLongCurrent();
+          showCurrentLongSentence();
+        }
+      } else {
+        // 단어 / 짧은 문장
+        practiceIndex = (practiceIndex + 1) % practiceList.length;
+        loadPracticeItem();
+      }
+    }
+
+    practiceInput.addEventListener("input", updatePracticeTyping);
+    practiceInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        goToNextPractice();
+      }
+    });
+    practiceNextBtn.addEventListener("click", goToNextPractice);
+
+    // 처음 로드시 단어 모드 세팅
+    setupPracticeMode();
+
+    // ---------------- 게임 탭 전환 ----------------
+    const gameTabButtons = document.querySelectorAll(".game-tab-btn");
+    const fallWordArea = document.getElementById("fallWordArea");
+    const timeSentenceArea = document.getElementById("timeSentenceArea");
+
+    gameTabButtons.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        gameTabButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const gameType = btn.dataset.game;
+
+        if (gameType === "fallWord") {
+          fallWordArea.classList.add("active");
+          timeSentenceArea.classList.remove("active");
+        } else {
+          timeSentenceArea.classList.add("active");
+          fallWordArea.classList.remove("active");
+        }
+      });
+    });
+
+    // ---------------- 단어 게임 (위에서 아래로) ----------------
+    const fallWrapper = document.getElementById("fallWrapper");
+    const fallTypedDisplay = document.getElementById("fallTypedDisplay");
+    const fallInput = document.getElementById("fallInput");
+    const fallScoreTop = document.getElementById("fallScoreTop");
+    const fallSpeedInfo = document.getElementById("fallSpeedInfo");
+    const fallStatus = document.getElementById("fallStatus");
+    const fallStartBtn = document.getElementById("fallStartBtn");
+
+    let fallState = {
+      active: false,
+      score: 0,
+      speed: 1.5,
+      timerId: null,
+      currentItem: null
     };
 
-    // 클릭 + 터치 모두 대응
-    btn.addEventListener("click", handler);
-    btn.addEventListener("touchstart", function (e) {
-      e.preventDefault();
-      handler(e);
-    }, { passive: false });
-  });
-
-  // ---------- 단어 게임 (위 -> 아래) ----------
-  const fallWrapper = document.getElementById("fallWrapper");
-  const fallTypedDisplay = document.getElementById("fallTypedDisplay");
-  const fallInput = document.getElementById("fallInput");
-  const fallScoreTop = document.getElementById("fallScoreTop");
-  const fallSpeedInfo = document.getElementById("fallSpeedInfo");
-  const fallStatus = document.getElementById("fallStatus");
-  const fallStartBtn = document.getElementById("fallStartBtn");
-
-  let fallState = {
-    active: false,
-    score: 0,
-    speed: 1.5,
-    timerId: null,
-    spawnId: null,
-    items: [],
-    lanes: [10, 30, 50, 70, 90],
-    nextLaneIndex: 0,
-    current: null
-  };
-
-  function getRandomWord() {
-    const wordList = exercises.filter(ex => ex.type === "word");
-    if (wordList.length === 0) return null;
-    const idx = Math.floor(Math.random() * wordList.length);
-    return wordList[idx];
-  }
-
-  function spawnFallWord() {
-    if (!fallState.active) return;
-    const data = getRandomWord();
-    if (!data) return;
-
-    const id = Date.now() + Math.random();
-    const lane = fallState.lanes[fallState.nextLaneIndex];
-    fallState.nextLaneIndex = (fallState.nextLaneIndex + 1) % fallState.lanes.length;
-
-    const el = document.createElement("div");
-    el.className = "fall-word";
-    el.dataset.id = id;
-    el.textContent = data.text;
-
-    let yPx = -40;
-    el.style.top = yPx + "px";
-    el.style.left = lane + "%";
-
-    fallWrapper.appendChild(el);
-
-    const item = { id: id, text: data.text, el: el, yPx: yPx, lane: lane };
-    fallState.items.push(item);
-
-    if (!fallState.current) {
-      fallState.current = item;
-      fallInput.value = "";
-      fallTypedDisplay.innerHTML = "";
+    function getRandomWord() {
+      const list = exercises.filter((ex) => ex.type === "word");
+      if (list.length === 0) return null;
+      const idx = Math.floor(Math.random() * list.length);
+      return list[idx];
     }
-  }
 
-  function updateFallingPosition() {
-    if (!fallState.active) return;
-    const wrapperHeight = fallWrapper.clientHeight;
+    function spawnFallWord() {
+      const data = getRandomWord();
+      if (!data) return;
 
-    for (let i = 0; i < fallState.items.length; i++) {
-      const item = fallState.items[i];
+      const el = document.createElement("div");
+      el.className = "fall-word";
+      el.textContent = data.text;
+
+      // 가운데 근처에서 시작 (좌우 무작위 약간)
+      const wrapperWidth = fallWrapper.clientWidth;
+      const startX = wrapperWidth * 0.2 + Math.random() * wrapperWidth * 0.6;
+
+      el.style.left = startX + "px";
+      let yPx = -40;
+      el.style.top = yPx + "px";
+
+      fallWrapper.appendChild(el);
+
+      fallState.currentItem = {
+        el: el,
+        text: data.text,
+        yPx: yPx
+      };
+    }
+
+    function updateFallingPosition() {
+      if (!fallState.active || !fallState.currentItem) return;
+
+      const item = fallState.currentItem;
       item.yPx += fallState.speed;
       item.el.style.top = item.yPx + "px";
 
+      const wrapperHeight = fallWrapper.clientHeight;
       const bottom = item.yPx + item.el.offsetHeight;
+
       if (bottom >= wrapperHeight) {
+        // 바닥 도달 → 게임 오버
         stopFallGame(false);
-        return;
       }
     }
-  }
 
-  function startFallGame() {
-    if (fallState.active) return;
+    function startFallGame() {
+      if (fallState.active) return;
 
-    fallState.active = true;
-    fallState.score = 0;
-    fallState.speed = 1.5;
-    fallState.items.forEach(function (i) { i.el.remove(); });
-    fallState.items = [];
-    fallState.current = null;
-    fallWrapper.innerHTML = "";
-    fallScoreTop.textContent = "점수: 0";
-    fallSpeedInfo.textContent = "속도: 1.5x";
-    fallStatus.textContent = "진행 중...";
-    fallTypedDisplay.innerHTML = "";
-    fallInput.value = "";
-    fallInput.focus();
+      fallState.active = true;
+      fallState.score = 0;
+      fallState.speed = 1.5;
 
-    if (fallState.timerId) clearInterval(fallState.timerId);
-    if (fallState.spawnId) clearInterval(fallState.spawnId);
+      if (fallState.timerId) clearInterval(fallState.timerId);
+      fallState.timerId = setInterval(updateFallingPosition, 40);
 
-    fallState.timerId = setInterval(updateFallingPosition, 40);
-    fallState.spawnId = setInterval(spawnFallWord, 2200);
-
-    spawnFallWord();
-  }
-
-  function stopFallGame(cleared) {
-    fallState.active = false;
-    if (fallState.timerId) {
-      clearInterval(fallState.timerId);
-      fallState.timerId = null;
-    }
-    if (fallState.spawnId) {
-      clearInterval(fallState.spawnId);
-      fallState.spawnId = null;
-    }
-
-    if (!cleared) {
-      fallStatus.textContent = "게임 오버 · 최종 점수: " + fallState.score;
-    } else {
-      fallStatus.textContent = "게임 종료 · 점수: " + fallState.score;
-    }
-  }
-
-  function handleFallInput() {
-    if (!fallState.active || !fallState.current) return;
-
-    const typed = fallInput.value;
-    const target = fallState.current.text;
-    const result = colorizeText(target, typed);
-    const html = result.html;
-
-    fallTypedDisplay.innerHTML = html;
-
-    if (stripDiacritics(typed) === stripDiacritics(target)) {
-      fallState.score++;
-      fallScoreTop.textContent = "점수: " + fallState.score;
-
-      fallState.speed += 0.3;
-      fallSpeedInfo.textContent = "속도: " + fallState.speed.toFixed(1) + "x";
-
-      fallState.current.el.remove();
-      fallState.items = fallState.items.filter(function (it) {
-        return it.id !== fallState.current.id;
-      });
-      fallState.current = fallState.items[0] || null;
-
+      if (fallState.currentItem && fallState.currentItem.el) {
+        fallState.currentItem.el.remove();
+      }
+      fallState.currentItem = null;
+      fallWrapper.innerHTML = "";
       fallInput.value = "";
       fallTypedDisplay.innerHTML = "";
-    }
-  }
+      fallScoreTop.textContent = "점수: 0";
+      fallSpeedInfo.textContent = "속도: 1.5x";
+      fallStatus.textContent = "진행 중...";
 
-  // 게임 시작 버튼: 클릭 + 터치 모두 대응
-  fallStartBtn.addEventListener("click", function () {
-    startFallGame();
-  });
-  fallStartBtn.addEventListener("touchstart", function (e) {
-    e.preventDefault();
-    startFallGame();
-  }, { passive: false });
-
-  fallInput.addEventListener("input", handleFallInput);
-
-  // ---------- 문장 타임어택 ----------
-  const timeMeaning = document.getElementById("timeMeaning");
-  const timeTargetDisplay = document.getElementById("timeTargetDisplay");
-  const timeTypedDisplay = document.getElementById("timeTypedDisplay");
-  const timeInput = document.getElementById("timeInput");
-  const timeLeftEl = document.getElementById("timeLeft");
-  const timeScoreEl = document.getElementById("timeScore");
-  const timeAccuracyEl = document.getElementById("timeAccuracy");
-  const timeStartBtn = document.getElementById("timeStartBtn");
-
-  let timeState = {
-    active: false,
-    timeLeft: 30,
-    timerId: null,
-    score: 0,
-    current: null
-  };
-
-  function getRandomSentence() {
-    const list = exercises.filter(function (ex) {
-      return ex.type === "sentence-short";
-    });
-    if (list.length === 0) return null;
-    const idx = Math.floor(Math.random() * list.length);
-    return list[idx];
-  }
-
-  function loadTimeQuestion() {
-    timeState.current = getRandomSentence();
-    if (!timeState.current) return;
-
-    timeMeaning.textContent = timeState.current.meaning || "";
-    timeTargetDisplay.textContent = timeState.current.text || "";
-    timeTypedDisplay.innerHTML = "";
-    timeInput.value = "";
-    timeInput.focus();
-  }
-
-  function updateTimeTyping() {
-    if (!timeState.active || !timeState.current) return;
-
-    const typed = timeInput.value;
-    const target = timeState.current.text;
-    const result = colorizeText(target, typed);
-    const html = result.html;
-    const correctCount = result.correctCount;
-
-    timeTypedDisplay.innerHTML = html;
-
-    if (stripDiacritics(typed) === stripDiacritics(target)) {
-      timeState.score++;
-      timeScoreEl.textContent = "완료한 문제: " + timeState.score + "개";
-      loadTimeQuestion();
+      fallInput.focus();
+      spawnFallWord();
     }
 
-    const totalTyped = typed.length;
-    const acc = totalTyped === 0
-      ? 100
-      : Math.round((correctCount / totalTyped) * 100);
-    timeAccuracyEl.textContent = "정확도: " + acc + "%";
-  }
-
-  function startTimeAttack() {
-    if (timeState.active) return;
-
-    timeState.active = true;
-    timeState.timeLeft = 30;
-    timeState.score = 0;
-    timeScoreEl.textContent = "완료한 문제: 0개";
-    timeLeftEl.textContent = "남은 시간: 30초";
-    timeAccuracyEl.textContent = "정확도: 100%";
-    loadTimeQuestion();
-
-    if (timeState.timerId) clearInterval(timeState.timerId);
-    timeState.timerId = setInterval(function () {
-      timeState.timeLeft--;
-      if (timeState.timeLeft <= 0) {
-        timeLeftEl.textContent = "남은 시간: 0초";
-        endTimeAttack();
-      } else {
-        timeLeftEl.textContent = "남은 시간: " + timeState.timeLeft + "초";
+    function stopFallGame(cleared) {
+      fallState.active = false;
+      if (fallState.timerId) {
+        clearInterval(fallState.timerId);
+        fallState.timerId = null;
       }
-    }, 1000);
-  }
+      if (fallState.currentItem && fallState.currentItem.el) {
+        fallState.currentItem.el.remove();
+      }
+      fallState.currentItem = null;
 
-  function endTimeAttack() {
-    timeState.active = false;
-    if (timeState.timerId) {
-      clearInterval(timeState.timerId);
-      timeState.timerId = null;
+      if (!cleared) {
+        fallStatus.textContent = "게임 오버 · 최종 점수: " + fallState.score;
+      } else {
+        fallStatus.textContent = "게임 종료 · 점수: " + fallState.score;
+      }
     }
-    timeLeftEl.textContent = "시간 종료 · 최종 점수: " + timeState.score + "개";
-  }
 
-  timeStartBtn.addEventListener("click", function () {
-    startTimeAttack();
+    function handleFallInput() {
+      if (!fallState.active || !fallState.currentItem) return;
+
+      const typed = fallInput.value;
+      const target = fallState.currentItem.text || "";
+
+      const result = colorizeText(target, typed);
+      fallTypedDisplay.innerHTML = result.html;
+
+      if (stripDiacritics(typed) === stripDiacritics(target)) {
+        // 정답
+        fallState.score++;
+        fallScoreTop.textContent = "점수: " + fallState.score;
+        fallState.speed += 0.3;
+        fallSpeedInfo.textContent = "속도: " + fallState.speed.toFixed(1) + "x";
+
+        fallState.currentItem.el.remove();
+        fallState.currentItem = null;
+        fallInput.value = "";
+        fallTypedDisplay.innerHTML = "";
+
+        // 다음 단어
+        spawnFallWord();
+      }
+    }
+
+    fallStartBtn.addEventListener("click", startFallGame);
+    fallInput.addEventListener("input", handleFallInput);
+
+    // ---------------- 문장 타임어택 ----------------
+    const timeMeaning = document.getElementById("timeMeaning");
+    const timeTargetDisplay = document.getElementById("timeTargetDisplay");
+    const timeTypedDisplay = document.getElementById("timeTypedDisplay");
+    const timeInput = document.getElementById("timeInput");
+    const timeLeftEl = document.getElementById("timeLeft");
+    const timeScoreEl = document.getElementById("timeScore");
+    const timeAccuracyEl = document.getElementById("timeAccuracy");
+    const timeStartBtn = document.getElementById("timeStartBtn");
+
+    let timeState = {
+      active: false,
+      timeLeft: 30,
+      timerId: null,
+      score: 0,
+      current: null
+    };
+
+    function getRandomSentence() {
+      const list = exercises.filter((ex) => ex.type === "sentence-short");
+      if (list.length === 0) return null;
+      const idx = Math.floor(Math.random() * list.length);
+      return list[idx];
+    }
+
+    function loadTimeQuestion() {
+      timeState.current = getRandomSentence();
+      if (!timeState.current) return;
+
+      timeMeaning.textContent = timeState.current.meaning || "";
+      timeTargetDisplay.textContent = timeState.current.text || "";
+      timeTypedDisplay.innerHTML = "";
+      timeInput.value = "";
+      timeInput.focus();
+    }
+
+    function updateTimeTyping() {
+      if (!timeState.active || !timeState.current) return;
+
+      const typed = timeInput.value;
+      const target = timeState.current.text || "";
+
+      const result = colorizeText(target, typed);
+      timeTypedDisplay.innerHTML = result.html;
+
+      if (stripDiacritics(typed) === stripDiacritics(target)) {
+        timeState.score++;
+        timeScoreEl.textContent = "완료한 문제: " + timeState.score + "개";
+        loadTimeQuestion();
+      }
+
+      const totalTyped = typed.length;
+      const acc =
+        totalTyped === 0
+          ? 100
+          : Math.round((result.correctCount / totalTyped) * 100);
+      timeAccuracyEl.textContent = "정확도: " + acc + "%";
+    }
+
+    function startTimeAttack() {
+      if (timeState.active) return;
+
+      timeState.active = true;
+      timeState.timeLeft = 30;
+      timeState.score = 0;
+      timeScoreEl.textContent = "완료한 문제: 0개";
+      timeLeftEl.textContent = "남은 시간: 30초";
+      timeAccuracyEl.textContent = "정확도: 100%";
+
+      if (timeState.timerId) {
+        clearInterval(timeState.timerId);
+      }
+
+      loadTimeQuestion();
+
+      timeState.timerId = setInterval(function () {
+        timeState.timeLeft--;
+        if (timeState.timeLeft <= 0) {
+          timeLeftEl.textContent = "남은 시간: 0초";
+          endTimeAttack();
+        } else {
+          timeLeftEl.textContent =
+            "남은 시간: " + timeState.timeLeft + "초";
+        }
+      }, 1000);
+    }
+
+    function endTimeAttack() {
+      timeState.active = false;
+      if (timeState.timerId) {
+        clearInterval(timeState.timerId);
+        timeState.timerId = null;
+      }
+      timeLeftEl.textContent =
+        "시간 종료 · 최종 점수: " + timeState.score + "개";
+    }
+
+    timeStartBtn.addEventListener("click", startTimeAttack);
+    timeInput.addEventListener("input", updateTimeTyping);
   });
-  timeStartBtn.addEventListener("touchstart", function (e) {
-    e.preventDefault();
-    startTimeAttack();
-  }, { passive: false });
-
-  timeInput.addEventListener("input", updateTimeTyping);
 </script>
-
 </body>
 </html>
