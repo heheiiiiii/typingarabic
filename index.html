@@ -1763,15 +1763,19 @@
     }
 
     function loadTestQuestion() {
-      testState.current = getRandomTestSentence();
-      if (!testState.current) return;
+  testState.current = getRandomTestSentence();
+  if (!testState.current) return;
 
-      testMeaning.textContent = testState.current.meaning || "";
-      testTarget.textContent = testState.current.text || "";
-      testTypedDisplay.innerHTML = "";
-      testInput.value = "";
-      testInput.focus();
-    }
+  const rawText = testState.current.text || "";
+  const displayText = stripDiacritics(rawText);  // ★ 모음부호 제거된 텍스트
+
+  testMeaning.textContent = testState.current.meaning || "";
+  testTarget.textContent = displayText;          // ★ 자음만 보이게
+  testTypedDisplay.innerHTML = "";
+  testInput.value = "";
+  testInput.focus();
+}
+
 
     function updateTestDisplay(typed) {
       if (!testState.current) return;
@@ -1847,36 +1851,37 @@
     }
 
     function handleTestKeyDown(e) {
-      if (!testState.active || !testState.current) return;
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const typed = testInput.value;
-        const target = testTarget.textContent || "";
+  if (!testState.active || !testState.current) return;
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const typed = testInput.value;
 
-        const cleanTyped = stripDiacritics(typed);
-        const cleanTarget = stripDiacritics(target);
+    // ★ 원본 아랍어 문장에서 모음부호 제거 (검정 기준)
+    const rawTarget = testState.current.text || "";
+    const cleanTarget = stripDiacritics(rawTarget);
 
-        // 정답 비교용 & 통계 누적용
-        const { correctCount, typedLen } = (function () {
-          // 간단히 위치 기준 일치 개수
-          const len = cleanTyped.length;
-          let correct = 0;
-          for (let i = 0; i < len; i++) {
-            if (cleanTyped[i] && cleanTyped[i] === cleanTarget[i]) {
-              correct++;
-            }
-          }
-          return { correctCount: correct, typedLen: cleanTyped.length };
-        })();
+    // ★ 사용자가 입력한 것도 모음부호 제거
+    const cleanTyped = stripDiacritics(typed);
 
-        testState.totalTyped += typedLen;
-        testState.totalCorrect += correctCount;
-        recomputeTestStats();
-
-        // 다음 문장
-        loadTestQuestion();
+    const { correctCount, typedLen } = (function () {
+      const len = cleanTyped.length;
+      let correct = 0;
+      for (let i = 0; i < len; i++) {
+        if (cleanTyped[i] && cleanTyped[i] === cleanTarget[i]) {
+          correct++;
+        }
       }
-    }
+      return { correctCount: correct, typedLen: cleanTyped.length };
+    })();
+
+    testState.totalTyped += typedLen;
+    testState.totalCorrect += correctCount;
+    recomputeTestStats();
+
+    loadTestQuestion();
+  }
+}
+
 
     testStartBtn.addEventListener("click", startTest);
     testInput.addEventListener("input", handleTestInput);
