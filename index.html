@@ -360,8 +360,9 @@
 
     .fall-word {
       position: absolute;
-      left: 50%;
-      transform: translate(-50%, 0%);
+       top: 50%;              /* 기본값 – 실제 위치는 JS에서 바꿈 */
+  left: 100%;            /* 화면 오른쪽 밖에서 시작 */
+      transform: translate(0, -50%);
       font-size: 1.9rem;
       direction: rtl;
       text-align: center;
@@ -790,15 +791,17 @@
     const fallStartBtn = document.getElementById("fallStartBtn");
 
     let fallState = {
-      active: false,
-      score: 0,
-      speed: 0.8,
-      timerId: null,
-      spawnId: null,
-      items: [],   // { id, text, el, y, x }
-      current: null,
-      nextSide: "left"
-    };
+  active: false,
+  score: 0,
+  speed: 1.2,                 // 가로 이동 속도 (퍼센트 단위)
+  timerId: null,
+  spawnId: null,
+  items: [],                  // { id, text, el, x, lane }
+  current: null,
+  lanes: [10, 30, 50, 70, 90], // 위 → 아래 5개 레인 (퍼센트)
+  nextLaneIndex: 0            // 다음에 쓸 레인 인덱스
+};
+
 
     function getRandomWord() {
       const wordList = exercises.filter(ex => ex.type === "word");
@@ -807,54 +810,63 @@
       return wordList[idx];
     }
 
-    function spawnFallWord() {
-      if (!fallState.active) return;
-      const data = getRandomWord();
-      if (!data) return;
+   function spawnFallWord() {
+  if (!fallState.active) return;
+  const data = getRandomWord();
+  if (!data) return;
 
-      const id = Date.now() + Math.random();
-      const x = fallState.nextSide === "left" ? 25 : 75;
-      fallState.nextSide = fallState.nextSide === "left" ? "right" : "left";
+  const id = Date.now() + Math.random();
 
-      const el = document.createElement("div");
-      el.className = "fall-word";
-      el.dataset.id = id;
-      el.textContent = data.text;
-      el.style.left = x + "%";
-      el.style.transform = "translate(-50%, 0%)";
+  // 레인 선택: 위→아래→위→… 순환
+  const lane = fallState.lanes[fallState.nextLaneIndex];
+  fallState.nextLaneIndex = (fallState.nextLaneIndex + 1) % fallState.lanes.length;
 
-      fallWrapper.appendChild(el);
+  const el = document.createElement("div");
+  el.className = "fall-word";
+  el.dataset.id = id;
+  el.textContent = data.text;
 
-      const item = { id, text: data.text, el, y: 0, x };
-      fallState.items.push(item);
+  const x = 100;                          // 오른쪽 밖에서 시작
+  el.style.left = x + "%";
+  el.style.top = lane + "%";              // 선택된 세로 위치
 
-      if (!fallState.current) {
-        fallState.current = item;
-        fallTypedDisplay.innerHTML = "";
-        fallInput.value = "";
-      }
+  fallWrapper.appendChild(el);
+
+  const item = { id, text: data.text, el, x, lane };
+  fallState.items.push(item);
+
+  // 현재 타이핑 대상이 없으면 이 단어를 대상으로 설정
+  if (!fallState.current) {
+    fallState.current = item;
+    fallTypedDisplay.innerHTML = "";
+    fallInput.value = "";
+  }
+}
+
+function updateFallingPosition() {
+  if (!fallState.active) return;
+
+  for (const item of fallState.items) {
+    // 오른쪽 → 왼쪽으로 이동
+    item.x -= fallState.speed;
+    item.el.style.left = item.x + "%";
+
+    // 화면 왼쪽 밖으로 나가면 게임 오버
+    if (item.x <= -20) {
+      stopFallGame(false);
+      return;
     }
+  }
+}
 
-    function updateFallingPosition() {
-      if (!fallState.active) return;
-
-      for (const item of fallState.items) {
-        item.y += fallState.speed;
-        item.el.style.transform = `translate(-50%, ${item.y}%)`;
-
-        if (item.y >= 100) {
-          stopFallGame(false);
-          return;
-        }
-      }
-    }
+    
 
     function startFallGame() {
       if (fallState.active) return;
 
       fallState.active = true;
       fallState.score = 0;
-      fallState.speed = 0.8;
+      fallState.speed = 1.2;
       fallState.items.forEach(i => i.el.remove());
       fallState.items = [];
       fallState.current = null;
