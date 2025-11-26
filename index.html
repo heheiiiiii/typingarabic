@@ -7,58 +7,116 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --bg: #f3f3f3;
+      --card-bg: #ffffff;
+      --text-main: #111111;
+      --text-sub: #666666;
+      --border: #dddddd;
+      --muted-bg: #fafafa;
+      --box-bg: #f1f1f1;
+      --accent: #2196f3;
+      --accent-contrast: #ffffff;
+      --accent-game: #ff9800;
+      --accent-game-contrast: #ffffff;
+      --accent-green: #4caf50;
+      --danger: #e53935;
+      --shadow: 0 10px 26px rgba(0,0,0,0.08);
+    }
+
+    body[data-theme="dark"] {
+      --bg: #0f172a;
+      --card-bg: #111827;
+      --text-main: #e5e7eb;
+      --text-sub: #9ca3af;
+      --border: #1f2937;
+      --muted-bg: #020617;
+      --box-bg: #111827;
+      --accent: #3b82f6;
+      --accent-contrast: #f9fafb;
+      --accent-game: #f97316;
+      --accent-game-contrast: #111827;
+      --accent-green: #22c55e;
+      --danger: #f97373;
+      --shadow: 0 10px 26px rgba(15,23,42,0.7);
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f3f3f3;
-      color: #111;
+      background: var(--bg);
+      color: var(--text-main);
       display: flex;
       justify-content: center;
       align-items: stretch;
       min-height: 100vh;
       padding: 20px;
+      transition: background 0.25s ease, color 0.25s ease;
     }
 
     .container {
       width: 100%;
       max-width: 1100px;
-      background: #fff;
+      background: var(--card-bg);
       border-radius: 16px;
       padding: 20px 24px 28px;
-      box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
       min-height: 90vh;
+      transition: background 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 10px;
     }
 
     .app-title {
       text-align: center;
       font-size: 1.6rem;
       font-weight: 700;
-      margin-bottom: 14px;
+      flex: 1;
     }
+
+    .theme-toggle {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--muted-bg);
+      color: var(--text-sub);
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .theme-toggle:active { transform: translateY(1px); }
 
     .main-tabs {
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 8px;
       margin-bottom: 18px;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       white-space: nowrap;
     }
 
     .main-tab-btn {
       padding: 6px 12px;
       border-radius: 999px;
-      border: 1px solid #ccc;
-      background: #fafafa;
+      border: 1px solid var(--border);
+      background: var(--muted-bg);
       font-size: 0.85rem;
       cursor: pointer;
+      color: var(--text-sub);
     }
 
     .main-tab-btn.active {
-      background: #2196f3;
-      border-color: #2196f3;
-      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-contrast);
     }
 
     .tab-section { flex: 1; display: none; }
@@ -79,7 +137,7 @@
     .top-stats {
       text-align: right;
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-sub);
       margin-bottom: 4px;
     }
 
@@ -95,12 +153,12 @@
 
     .info-text {
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-sub);
       margin-bottom: 4px;
     }
 
     .box {
-      background: #f1f1f1;
+      background: var(--box-bg);
       border-radius: 10px;
       padding: 12px 14px;
       text-align: center;
@@ -108,13 +166,17 @@
 
     .combined-box { display: flex; flex-direction: column; gap: 6px; }
 
-    .meaning-line { font-size: 1rem; color: #333; text-align: center; }
+    .meaning-line {
+      font-size: 1rem;
+      color: var(--text-main);
+      text-align: center;
+    }
 
     .arabic-line {
       font-size: 1.6rem;
       direction: rtl;
       text-align: center;
-      color: #111;
+      color: var(--text-main);
       word-wrap: break-word;
       line-height: 1.8;
       white-space: pre-line;
@@ -139,13 +201,19 @@
       direction: rtl;
       text-align: center;
       border-radius: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border);
       outline: none;
+      background: var(--card-bg);
+      color: var(--text-main);
     }
 
     .typing-input:focus {
-      border-color: #2196f3;
-      box-shadow: 0 0 0 2px rgba(33,150,243,0.12);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(33,150,243,0.18);
+    }
+
+    body[data-theme="dark"] .typing-input:focus {
+      box-shadow: 0 0 0 2px rgba(59,130,246,0.36);
     }
 
     .bottom-row {
@@ -155,7 +223,7 @@
       align-items: center;
       gap: 10px;
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-sub);
       flex-wrap: wrap;
     }
 
@@ -163,8 +231,8 @@
       padding: 8px 16px;
       border-radius: 999px;
       border: none;
-      background: #2196f3;
-      color: #fff;
+      background: var(--accent);
+      color: var(--accent-contrast);
       cursor: pointer;
       font-size: 0.9rem;
       white-space: nowrap;
@@ -172,22 +240,22 @@
 
     .btn:active { transform: translateY(1px); }
 
-    .correct-char { color: #111; }
-    .wrong-char { color: #e53935; }
+    .correct-char { color: var(--text-main); }
+    .wrong-char { color: var(--danger); }
 
     .long-selector { display: none; text-align: left; }
     .long-selector.active { display: block; }
 
     .long-selector-title {
       font-size: 0.9rem;
-      color: #444;
+      color: var(--text-sub);
       margin-bottom: 4px;
     }
 
     .long-list {
       border-radius: 10px;
-      border: 1px solid #ddd;
-      background: #fafafa;
+      border: 1px solid var(--border);
+      background: var(--muted-bg);
       max-height: 170px;
       overflow-y: auto;
       padding: 4px 0;
@@ -198,10 +266,21 @@
       padding: 6px 10px;
       font-size: 0.9rem;
       cursor: pointer;
+      color: var(--text-main);
     }
 
-    .long-item:hover { background: #e3f2fd; }
-    .long-item.selected { background: #bbdefb; font-weight: 600; }
+    .long-item:hover { background: rgba(33,150,243,0.08); }
+    .long-item.selected {
+      background: rgba(33,150,243,0.15);
+      font-weight: 600;
+    }
+
+    body[data-theme="dark"] .long-item:hover {
+      background: rgba(59,130,246,0.18);
+    }
+    body[data-theme="dark"] .long-item.selected {
+      background: rgba(59,130,246,0.32);
+    }
 
     .game-title {
       text-align: center;
@@ -213,7 +292,7 @@
     .game-desc {
       text-align: center;
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-sub);
       margin-bottom: 14px;
     }
 
@@ -228,16 +307,17 @@
     .game-tab-btn {
       padding: 6px 14px;
       border-radius: 999px;
-      border: 1px solid #ccc;
-      background: #fafafa;
+      border: 1px solid var(--border);
+      background: var(--muted-bg);
       font-size: 0.85rem;
       cursor: pointer;
+      color: var(--text-sub);
     }
 
     .game-tab-btn.active {
-      background: #ff9800;
-      border-color: #ff9800;
-      color: #fff;
+      background: var(--accent-game);
+      border-color: var(--accent-game);
+      color: var(--accent-game-contrast);
     }
 
     .game-content { flex: 1; display: none; flex-direction: column; }
@@ -270,21 +350,29 @@
       direction: rtl;
       text-align: center;
       border-radius: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border);
       outline: none;
+      background: var(--card-bg);
+      color: var(--text-main);
     }
 
     .game-input:focus {
-      border-color: #ff9800;
-      box-shadow: 0 0 0 2px rgba(255,152,0,0.18);
+      border-color: var(--accent-game);
+      box-shadow: 0 0 0 2px rgba(255,152,0,0.24);
+    }
+
+    body[data-theme="dark"] .game-input:focus {
+      box-shadow: 0 0 0 2px rgba(249,115,22,0.4);
     }
 
     .game-top-stats {
       display: flex;
       justify-content: space-between;
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-sub);
       margin-bottom: 4px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     .game-difficulty {
@@ -293,7 +381,7 @@
       align-items: center;
       gap: 8px;
       font-size: 0.9rem;
-      color: #555;
+      color: var(--text-sub);
       margin-bottom: 6px;
       flex-wrap: wrap;
     }
@@ -301,16 +389,17 @@
     .diff-btn {
       padding: 4px 10px;
       border-radius: 999px;
-      border: 1px solid #ccc;
-      background: #fafafa;
+      border: 1px solid var(--border);
+      background: var(--muted-bg);
       cursor: pointer;
       font-size: 0.85rem;
+      color: var(--text-sub);
     }
 
     .diff-btn.active {
-      background: #4caf50;
-      border-color: #4caf50;
-      color: #fff;
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+      color: #ffffff;
     }
 
     .game-stats-row {
@@ -320,7 +409,7 @@
       gap: 10px;
       flex-wrap: wrap;
       font-size: 0.9rem;
-      color: #666;
+      color: var(--text-sub);
       align-items: center;
     }
 
@@ -329,7 +418,7 @@
       height: 320px;
       overflow: hidden;
       border-radius: 12px;
-      background: #fafafa;
+      background: var(--muted-bg);
       margin-top: 6px;
       margin-bottom: 4px;
     }
@@ -343,28 +432,40 @@
       direction: rtl;
       text-align: center;
       white-space: nowrap;
+      color: var(--text-main);
     }
 
     .game-arabic-box {
-      background: #f1f1f1;
+      background: var(--box-bg);
       border-radius: 10px;
       padding: 10px 14px;
       font-size: 1.5rem;
       direction: rtl;
       text-align: center;
-      color: #111;
+      color: var(--text-main);
       word-wrap: break-word;
       line-height: 1.7;
       white-space: pre-line;
     }
 
     .game-meaning-box {
-      background: #f1f1f1;
+      background: var(--box-bg);
       border-radius: 10px;
       padding: 10px 14px;
       font-size: 0.95rem;
-      color: #333;
+      color: var(--text-main);
       text-align: center;
+    }
+
+    /* 타자 검정 전용 */
+    .test-top-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     @media (max-width: 768px) {
@@ -379,18 +480,36 @@
       .typing-input,
       .game-input { font-size: 1.05rem; }
       .fall-wrapper { height: 260px; }
+      .top-bar { flex-direction: row; }
+    }
+
+    @media (max-width: 480px) {
+      .app-title { font-size: 1.25rem; }
+      .main-tab-btn { font-size: 0.8rem; padding: 5px 10px; }
+      .arabic-line,
+      .typed-display,
+      .game-arabic-box,
+      .game-typed-display,
+      .fall-word { font-size: 1.25rem; }
+      .typing-input,
+      .game-input { font-size: 1rem; padding: 8px 10px; }
+      .fall-wrapper { height: 230px; }
     }
   </style>
 </head>
-<body>
+<body data-theme="light">
   <div class="container">
-    <h1 class="app-title">아랍어 타자 연습</h1>
+    <div class="top-bar">
+      <h1 class="app-title">아랍어 타자 연습</h1>
+      <button id="themeToggle" class="theme-toggle">다크 모드</button>
+    </div>
 
     <div class="main-tabs">
       <button class="main-tab-btn active" data-tab="word">단어</button>
       <button class="main-tab-btn" data-tab="short">문장</button>
       <button class="main-tab-btn" data-tab="long">긴 글</button>
       <button class="main-tab-btn" data-tab="game">게임 모드</button>
+      <button class="main-tab-btn" data-tab="test">타자 검정</button>
     </div>
 
     <!-- 연습 섹션 -->
@@ -404,7 +523,6 @@
           <div class="long-list" id="longList"></div>
         </div>
 
-        <!-- 긴글탭에서 한국어 뜻 위에 배치되는 진행도 영역 -->
         <div class="top-stats">
           <span id="practiceTopStats">진행도: 0개 · 정확도: 100% · 0 / 0 글자</span>
         </div>
@@ -464,7 +582,6 @@
           <div class="fall-wrapper" id="fallWrapper"></div>
 
           <div>
-
             <div class="game-typed-display" id="fallTypedDisplay"></div>
           </div>
 
@@ -506,7 +623,6 @@
           </div>
 
           <div>
-            
             <div class="game-typed-display" id="timeTypedDisplay"></div>
           </div>
 
@@ -529,9 +645,69 @@
         </div>
       </div>
     </section>
+
+    <!-- 타자 검정 섹션 -->
+    <section class="tab-section" id="testSection">
+      <div class="mode-title">타자 검정 (3분)</div>
+      <div class="center-wrap">
+        <div class="test-top-stats">
+          <span id="testTime">남은 시간: 180초</span>
+          <span id="testSpeed">평균 타수: 0타/분</span>
+          <span id="testAccuracy">정확도: 100%</span>
+        </div>
+
+        <div>
+          <div class="box combined-box">
+            <div class="meaning-line" id="testMeaning">
+              [검정 대기] 시작 버튼을 누르면 문장이 표시됩니다.
+            </div>
+            <div class="arabic-line" id="testTarget"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="typed-display" id="testTypedDisplay"></div>
+        </div>
+
+        <div class="input-area">
+          <input
+            id="testInput"
+            class="typing-input"
+            type="text"
+            dir="rtl"
+            autocomplete="off"
+            disabled
+          />
+        </div>
+
+        <div class="bottom-row">
+          <button class="btn" id="testStartBtn">검정 시작</button>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script>
+    // ---------- 테마 토글 ----------
+    const themeToggle = document.getElementById("themeToggle");
+
+    function applyTheme(theme) {
+      document.body.dataset.theme = theme;
+      localStorage.setItem("arabicTypingTheme", theme);
+      themeToggle.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+    }
+
+    (function initTheme() {
+      const saved = localStorage.getItem("arabicTypingTheme") || "light";
+      applyTheme(saved);
+    })();
+
+    themeToggle.addEventListener("click", () => {
+      const current = document.body.dataset.theme || "light";
+      const next = current === "dark" ? "light" : "dark";
+      applyTheme(next);
+    });
+
     // ---------- 공통 유틸 ----------
     function stripDiacritics(str) {
       return str.replace(/[\u0610-\u061A\u064B-\u0652\u0670\u06D6-\u06ED]/g, "");
@@ -574,7 +750,7 @@
 
     // ---------- 문제 데이터 ----------
     const exercises = [
-      // 단어 (앞부분 생략 없이 예시 포함)
+      // 단어
       { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
       { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
       { type: "word", meaning: "친구", text: "صَدِيقٌ" },
@@ -684,7 +860,7 @@
       { type: "word", meaning: "빛", text: "ضَوْءٌ" },
       { type: "word", meaning: "그림", text: "رَسْمٌ" },
 
-      // 짧은 문장 (예시)
+      // 짧은 문장
       { type: "sentence-short", meaning: "안녕하세요.", text: "السَّلَامُ عَلَيْكُمْ." },
       { type: "sentence-short", meaning: "좋은 아침입니다.", text: "صَبَاحُ الخَيْرِ." },
       { type: "sentence-short", meaning: "좋은 저녁입니다.", text: "مَسَاءُ الخَيْرِ." },
@@ -726,8 +902,33 @@
       { type: "sentence-short", meaning: "길은 걷는 사람에게 열려 있다.", text: "الطَّرِيقُ لِمَنْ يَمْشِي." },
       { type: "sentence-short", meaning: "정답보다 진심이 중요하다.", text: "النِّيَّةُ خَيْرٌ مِنَ العَمَلِ." },
 
-      // 긴 글 (문장별 한국어 포함)
+      // 긴 글
       {
+        type: "sentence-long",
+        title: "동화 1",
+        meaning: "여름날 학교에 가는 소년의 이야기",
+        text:
+"فِي يَوْمٍ مِنَ الأَيَّامِ ذَهَبَ وَلَدٌ صَغِيرٌ إِلَى الْمَدْرَسَةِ.\n" +
+"كَانَ يَحْمِلُ فِي حَقِيبَتِهِ كِتَابَ الْقِصَصِ الَّذِي يُحِبُّهُ جِدًّا.\n" +
+"فِي طَرِيقِهِ قَابَلَ صَدِيقَهُ فِي الْحَيِّ، وَتَحَدَّثَا عَنِ الْأَحْلَامِ وَالْمُسْتَقْبَلِ.",
+        korText:
+"어느 날 한 소년이 학교에 갔습니다.\n" +
+"그는 자신이 아주 좋아하는 이야기책을 가방에 넣고 있었습니다.\n" +
+"가는 길에 동네 친구를 만나 꿈과 미래에 대해 이야기했습니다."
+      },
+      {
+        type: "sentence-long",
+        title: "뉴스 1",
+        meaning: "아랍어 교육 프로그램 개설에 관한 뉴스",
+        text:
+"أَعْلَنَتِ الْجَامِعَةُ الْيَوْمَ عَنْ بَرْنَامَجٍ جَدِيدٍ لِتَعْلِيمِ اللُّغَةِ الْعَرَبِيَّةِ.\n" +
+"يَهْدِفُ الْبَرْنَامَجُ إِلَى مُسَاعَدَةِ الطُّلَّابِ عَلَى التَّحَدُّثِ وَالْكِتَابَةِ بِطَلَاقَةٍ.\n" +
+"سَيَبْدَأُ التَّسْجِيلُ فِي الشَّهْرِ الْمُقْبِلِ وَسَيَكُونُ مَجَّانِيًّا لِجَمِيعِ الطُّلَّابِ.",
+        korText:
+"대학교는 오늘 새로운 아랍어 교육 프로그램을 발표했습니다.\n" +
+"이 프로그램은 학생들이 유창하게 말하고 쓸 수 있도록 돕는 것을 목표로 합니다.\n" +
+"등록은 다음 달에 시작되며 모든 학생에게 무료로 제공됩니다."
+      }  {
   type: "sentence-long",
   title: "고양이와 개미",
   meaning: "작은 도움도 소중하다는 이야기",
@@ -1045,15 +1246,13 @@
 "정령은 놀라며 ‘정말 올 줄 몰랐다’라고 말했고 상인은 ‘나는 약속을 지키는 사람’이라 답했다.\n" +
 "정령은 감동하여 그를 살려주며 말했다. ‘진정성은 두려움보다 강하다.’"
 }
-
-
-    
     ];
 
     // ---------- 상단 탭 ----------
     const mainTabButtons = document.querySelectorAll(".main-tab-btn");
     const practiceSection = document.getElementById("practiceSection");
     const gameSection = document.getElementById("gameSection");
+    const testSection = document.getElementById("testSection");
     let currentMode = "word";
 
     mainTabButtons.forEach(btn => {
@@ -1062,11 +1261,19 @@
         btn.classList.add("active");
         const tab = btn.dataset.tab;
 
+        // 섹션 표시 제어
         if (tab === "game") {
           practiceSection.classList.remove("active");
+          testSection.classList.remove("active");
           gameSection.classList.add("active");
-        } else {
+        } else if (tab === "test") {
+          practiceSection.classList.remove("active");
           gameSection.classList.remove("active");
+          testSection.classList.add("active");
+        } else {
+          // 단어/문장/긴 글 연습
+          gameSection.classList.remove("active");
+          testSection.classList.remove("active");
           practiceSection.classList.add("active");
           currentMode = tab;
           setupPracticeMode();
@@ -1145,8 +1352,7 @@
         longSelector.classList.remove("active");
       } else {
         modeTitle.textContent = "긴 글";
-        // 긴 글은 코드 순서 그대로 (셔플 없이)
-        practiceList = exercises.filter(ex => ex.type === "sentence-long");
+        practiceList = exercises.filter(ex => ex.type === "sentence-long"); // 순서 유지
         longSelector.classList.add("active");
         buildLongList();
       }
@@ -1553,6 +1759,153 @@
 
     timeStartBtn.addEventListener("click", startTimeAttack);
     timeInput.addEventListener("input", updateTimeTyping);
+
+    // ---------- 타자 검정 (3분) ----------
+    const testMeaning = document.getElementById("testMeaning");
+    const testTarget = document.getElementById("testTarget");
+    const testTypedDisplay = document.getElementById("testTypedDisplay");
+    const testInput = document.getElementById("testInput");
+    const testTimeEl = document.getElementById("testTime");
+    const testSpeedEl = document.getElementById("testSpeed");
+    const testAccuracyEl = document.getElementById("testAccuracy");
+    const testStartBtn = document.getElementById("testStartBtn");
+
+    let testState = {
+      active: false,
+      timeLeft: 180,
+      timerId: null,
+      current: null,
+      totalTyped: 0,
+      totalCorrect: 0,
+      totalDuration: 180
+    };
+
+    function getRandomTestSentence() {
+      const list = exercises.filter(ex => ex.type === "sentence-short");
+      if (list.length === 0) return null;
+      const idx = Math.floor(Math.random() * list.length);
+      return list[idx];
+    }
+
+    function loadTestQuestion() {
+      testState.current = getRandomTestSentence();
+      if (!testState.current) return;
+
+      testMeaning.textContent = testState.current.meaning || "";
+      testTarget.textContent = testState.current.text || "";
+      testTypedDisplay.innerHTML = "";
+      testInput.value = "";
+      testInput.focus();
+    }
+
+    function updateTestDisplay(typed) {
+      if (!testState.current) return;
+      const target = testTarget.textContent || "";
+      const { html } = colorizeText(target, typed);
+      testTypedDisplay.innerHTML = html;
+    }
+
+    function recomputeTestStats() {
+      const elapsed = testState.totalDuration - testState.timeLeft;
+      let speedText = "평균 타수: 0타/분";
+      if (elapsed > 0 && testState.totalCorrect > 0) {
+        const cpm = Math.round((testState.totalCorrect / elapsed) * 60);
+        speedText = `평균 타수: ${cpm}타/분`;
+      }
+      const acc = testState.totalTyped === 0
+        ? 100
+        : Math.round((testState.totalCorrect / testState.totalTyped) * 100);
+
+      testSpeedEl.textContent = speedText;
+      testAccuracyEl.textContent = `정확도: ${acc}%`;
+    }
+
+    function startTest() {
+      if (testState.active) return;
+
+      testState.active = true;
+      testState.timeLeft = 180;
+      testState.totalTyped = 0;
+      testState.totalCorrect = 0;
+      testTimeEl.textContent = "남은 시간: 180초";
+      testSpeedEl.textContent = "평균 타수: 0타/분";
+      testAccuracyEl.textContent = "정확도: 100%";
+      testTypedDisplay.innerHTML = "";
+      testMeaning.textContent = "검정이 시작되었습니다. 가능한 한 빨리 정확하게 입력해 보세요.";
+      testTarget.textContent = "";
+      testInput.disabled = false;
+      testInput.value = "";
+      testInput.focus();
+
+      if (testState.timerId) clearInterval(testState.timerId);
+
+      loadTestQuestion();
+
+      testState.timerId = setInterval(() => {
+        testState.timeLeft--;
+        if (testState.timeLeft <= 0) {
+          testState.timeLeft = 0;
+          testTimeEl.textContent = "남은 시간: 0초";
+          endTest();
+        } else {
+          testTimeEl.textContent = `남은 시간: ${testState.timeLeft}초`;
+          recomputeTestStats();
+        }
+      }, 1000);
+    }
+
+    function endTest() {
+      testState.active = false;
+      if (testState.timerId) {
+        clearInterval(testState.timerId);
+        testState.timerId = null;
+      }
+      testInput.disabled = true;
+      recomputeTestStats();
+      testMeaning.textContent = "검정이 종료되었습니다. 아래 결과를 확인해 보세요.";
+    }
+
+    function handleTestInput(e) {
+      if (!testState.active || !testState.current) return;
+      const typed = testInput.value;
+      updateTestDisplay(typed);
+    }
+
+    function handleTestKeyDown(e) {
+      if (!testState.active || !testState.current) return;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const typed = testInput.value;
+        const target = testTarget.textContent || "";
+
+        const cleanTyped = stripDiacritics(typed);
+        const cleanTarget = stripDiacritics(target);
+
+        // 정답 비교용 & 통계 누적용
+        const { correctCount, typedLen } = (function () {
+          // 간단히 위치 기준 일치 개수
+          const len = cleanTyped.length;
+          let correct = 0;
+          for (let i = 0; i < len; i++) {
+            if (cleanTyped[i] && cleanTyped[i] === cleanTarget[i]) {
+              correct++;
+            }
+          }
+          return { correctCount: correct, typedLen: cleanTyped.length };
+        })();
+
+        testState.totalTyped += typedLen;
+        testState.totalCorrect += correctCount;
+        recomputeTestStats();
+
+        // 다음 문장
+        loadTestQuestion();
+      }
+    }
+
+    testStartBtn.addEventListener("click", startTest);
+    testInput.addEventListener("input", handleTestInput);
+    testInput.addEventListener("keydown", handleTestKeyDown);
   </script>
 </body>
 </html>
