@@ -1128,11 +1128,13 @@ let currentLongSentencesKor = [];   // ← 이 줄 추가
         practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-short"));
         longSelector.classList.remove("active");
       } else {
-        modeTitle.textContent = "긴 글";
-        practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-long"));
-        longSelector.classList.add("active");
-        buildLongList();
+  modeTitle.textContent = "긴 글";
+  // 기존: practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-long"));
+  practiceList = exercises.filter(ex => ex.type === "sentence-long"); // ← 셔플 제거
+  longSelector.classList.add("active");
+  buildLongList();
       }
+    
 
       if (practiceList.length === 0) {
         practiceMeaning.textContent = "연습할 문장이 없습니다.";
