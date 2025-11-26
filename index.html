@@ -286,32 +286,6 @@
       margin-bottom: 4px;
     }
 
-    .game-difficulty {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 6px;
-      flex-wrap: wrap;
-    }
-
-    .diff-btn {
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid #ccc;
-      background: #fafafa;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
-    .diff-btn.active {
-      background: #4caf50;
-      border-color: #4caf50;
-      color: #fff;
-    }
-
     .game-stats-row {
       margin-top: 10px;
       display: flex;
@@ -335,13 +309,13 @@
 
     .fall-word {
       position: absolute;
+      left: 0;
       top: -40px;
-      left: 50%;
-      transform: translateX(-50%);
       font-size: 1.9rem;
       direction: rtl;
       text-align: center;
       white-space: nowrap;
+      transform: translateX(-50%);
     }
 
     .game-arabic-box {
@@ -407,8 +381,8 @@
 
         <div>
           <div class="box combined-box">
-            <div class="meaning-line" id="practiceMeaning">책상</div>
-            <div class="arabic-line" id="practiceTarget">مَكْتَبٌ</div>
+            <div class="meaning-line" id="practiceMeaning">제 이름은 지훈입니다.</div>
+            <div class="arabic-line" id="practiceTarget">اِسْمِي جِهُون.</div>
           </div>
         </div>
 
@@ -446,16 +420,9 @@
       <!-- 단어 게임 -->
       <div class="game-content active" id="fallWordArea">
         <div class="game-center-wrap">
-          <div class="game-difficulty">
-            <span>난이도:</span>
-            <button class="diff-btn active" data-level="easy">쉬움</button>
-            <button class="diff-btn" data-level="normal">중간</button>
-            <button class="diff-btn" data-level="hard">어려움</button>
-          </div>
-
           <div class="game-top-stats">
             <span id="fallScoreTop">점수: 0</span>
-            <span id="fallSpeedInfo">속도: 1.0x</span>
+            <span id="fallSpeedInfo">속도: 1.5x</span>
           </div>
 
           <div class="fall-wrapper" id="fallWrapper"></div>
@@ -528,1040 +495,522 @@
     </section>
   </div>
 
-  <script>
-    // ---------- 공통 유틸 ----------
-    function stripDiacritics(str) {
-      // 아랍어 모음부호 제거
-      return str.replace(/[\u0610-\u061A\u064B-\u0652\u0670\u06D6-\u06ED]/g, "");
-    }
-
-    function shuffleArray(arr) {
-      const a = arr.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-
-    function colorizeText(target, typed) {
-      const baseTarget = stripDiacritics(target);
-      const baseTyped  = stripDiacritics(typed);
-
-      let html = "";
-      let correctCount = 0;
-
-      for (let i = 0; i < baseTyped.length; i++) {
-        const rawCh   = typed[i] || "";
-        const typedCh = baseTyped[i] || "";
-        const tgtCh   = baseTarget[i] || "";
-
-        if (!rawCh) continue;
-
-        if (typedCh === tgtCh) {
-          html += `<span class="correct-char">${rawCh}</span>`;
-          correctCount++;
-        } else {
-          html += `<span class="wrong-char">${rawCh}</span>`;
-        }
-      }
-
-      const baseLen = baseTarget.length;
-      return { html, correctCount, baseLen, typedLen: baseTyped.length };
-    }
-
-    // ---------- 문제 데이터 ----------
-    const exercises = [
-      // 단어
-      { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
-      { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
-      { type: "word", meaning: "친구", text: "صَدِيقٌ" },
-
-      { type: "word", meaning: "물", text: "مَاءٌ" },
-      { type: "word", meaning: "집", text: "بَيْتٌ" },
-      { type: "word", meaning: "도시", text: "مَدِينَةٌ" },
-      { type: "word", meaning: "나라", text: "بَلَدٌ" },
-      { type: "word", meaning: "책", text: "كِتَابٌ" },
-      { type: "word", meaning: "문", text: "بَابٌ" },
-      { type: "word", meaning: "의자", text: "كُرْسِيٌّ" },
-      { type: "word", meaning: "침대", text: "سَرِيرٌ" },
-      { type: "word", meaning: "음식", text: "طَعَامٌ" },
-      { type: "word", meaning: "커피", text: "قَهْوَةٌ" },
-      { type: "word", meaning: "차(tea)", text: "شَايٌ" },
-      { type: "word", meaning: "사람", text: "إِنْسَانٌ" },
-      { type: "word", meaning: "학생", text: "طَالِبٌ" },
-      { type: "word", meaning: "선생님", text: "مُعَلِّمٌ" },
-      { type: "word", meaning: "가족", text: "أُسْرَةٌ" },
-      { type: "word", meaning: "아버지", text: "أَبٌ" },
-      { type: "word", meaning: "어머니", text: "أُمٌّ" },
-      { type: "word", meaning: "형제", text: "أَخٌ" },
-      { type: "word", meaning: "자매", text: "أُخْتٌ" },
-      { type: "word", meaning: "태양", text: "شَمْسٌ" },
-      { type: "word", meaning: "달", text: "قَمَرٌ" },
-      { type: "word", meaning: "바람", text: "رِيحٌ" },
-      { type: "word", meaning: "하늘", text: "سَمَاءٌ" },
-      { type: "word", meaning: "바다", text: "بَحْرٌ" },
-      { type: "word", meaning: "산", text: "جَبَلٌ" },
-      { type: "word", meaning: "강", text: "نَهْرٌ" },
-      { type: "word", meaning: "길", text: "طَرِيقٌ" },
-      { type: "word", meaning: "자동차", text: "سَيَّارَةٌ" },
-      { type: "word", meaning: "버스", text: "حَافِلَةٌ" },
-      { type: "word", meaning: "비행기", text: "طَائِرَةٌ" },
-      { type: "word", meaning: "공항", text: "مَطَارٌ" },
-      { type: "word", meaning: "시장", text: "سُوقٌ" },
-      { type: "word", meaning: "가게", text: "مَحَلٌّ" },
-      { type: "word", meaning: "돈", text: "مَالٌ" },
-      { type: "word", meaning: "시간", text: "وَقْتٌ" },
-      { type: "word", meaning: "하루", text: "يَوْمٌ" },
-      { type: "word", meaning: "밤", text: "لَيْلٌ" },
-      { type: "word", meaning: "아침", text: "صَبَاحٌ" },
-      { type: "word", meaning: "저녁", text: "مَسَاءٌ" },
-      { type: "word", meaning: "음악", text: "مُوسِيقَى" },
-      { type: "word", meaning: "사진", text: "صُورَةٌ" },
-      { type: "word", meaning: "전화기", text: "هَاتِفٌ" },
-      { type: "word", meaning: "컴퓨터", text: "حَاسُوبٌ" },
-      { type: "word", meaning: "창문", text: "نَافِذَةٌ" },
-      { type: "word", meaning: "꽃", text: "زَهْرَةٌ" },
-      { type: "word", meaning: "나무", text: "شَجَرَةٌ" },
-      { type: "word", meaning: "새", text: "طَائِرٌ" },
-      { type: "word", meaning: "개", text: "كَلْبٌ" },
-      { type: "word", meaning: "고양이", text: "قِطٌّ" },
-      { type: "word", meaning: "책가방", text: "حَقِيبَةٌ" },
-      { type: "word", meaning: "문제", text: "مُشْكِلَةٌ" },
-      { type: "word", meaning: "사랑", text: "حُبٌّ" },
-      { type: "word", meaning: "평화", text: "سَلَامٌ" },
-      { type: "word", meaning: "행복", text: "سَعَادَةٌ" },
-
-      { type: "word", meaning: "문장", text: "جُمْلَةٌ" },
-      { type: "word", meaning: "단어", text: "كَلِمَةٌ" },
-      { type: "word", meaning: "이름", text: "اِسْمٌ" },
-      { type: "word", meaning: "손", text: "يَدٌ" },
-      { type: "word", meaning: "눈", text: "عَيْنٌ" },
-      { type: "word", meaning: "귀", text: "أُذُنٌ" },
-      { type: "word", meaning: "입", text: "فَمٌ" },
-      { type: "word", meaning: "머리", text: "رَأْسٌ" },
-      { type: "word", meaning: "얼굴", text: "وَجْهٌ" },
-      { type: "word", meaning: "몸", text: "جِسْمٌ" },
-      { type: "word", meaning: "음료", text: "مَشْرُوبٌ" },
-      { type: "word", meaning: "빵", text: "خُبْزٌ" },
-      { type: "word", meaning: "과일", text: "فَاكِهَةٌ" },
-      { type: "word", meaning: "사과", text: "تُفَّاحَةٌ" },
-      { type: "word", meaning: "바나나", text: "مَوْزَةٌ" },
-      { type: "word", meaning: "오렌지", text: "بُرْتُقَالَةٌ" },
-      { type: "word", meaning: "밥", text: "أَرُزٌّ" },
-      { type: "word", meaning: "고기", text: "لَحْمٌ" },
-      { type: "word", meaning: "닭고기", text: "دَجَاجٌ" },
-      { type: "word", meaning: "생선", text: "سَمَكٌ" },
-      { type: "word", meaning: "옷", text: "مَلَابِسُ" },
-      { type: "word", meaning: "신발", text: "حِذَاءٌ" },
-      { type: "word", meaning: "가방", text: "حَقِيبَةٌ" },
-      { type: "word", meaning: "모자", text: "قُبَّعَةٌ" },
-      { type: "word", meaning: "시계", text: "سَاعَةٌ" },
-      { type: "word", meaning: "열쇠", text: "مِفْتَاحٌ" },
-      { type: "word", meaning: "선물", text: "هَدِيَّةٌ" },
-      { type: "word", meaning: "약", text: "دَوَاءٌ" },
-      { type: "word", meaning: "의사", text: "طَبِيبٌ" },
-      { type: "word", meaning: "병원", text: "مُسْتَشْفَى" },
-      { type: "word", meaning: "약국", text: "صَيْدَلِيَّةٌ" },
-      { type: "word", meaning: "은행", text: "بَنْكٌ" },
-      { type: "word", meaning: "우체국", text: "مَكْتَبُ الْبَرِيدِ" },
-      { type: "word", meaning: "도서관", text: "مَكْتَبَةٌ" },
-      { type: "word", meaning: "식당", text: "مَطْعَمٌ" },
-      { type: "word", meaning: "카페", text: "مَقْهَى" },
-      { type: "word", meaning: "호텔", text: "فُنْدُقٌ" },
-      { type: "word", meaning: "방", text: "غُرْفَةٌ" },
-      { type: "word", meaning: "욕실", text: "حَمَّامٌ" },
-      { type: "word", meaning: "비", text: "مَطَرٌ" },
-      { type: "word", meaning: "눈(눈송이)", text: "ثَلْجٌ" },
-      { type: "word", meaning: "날씨", text: "طَقْسٌ" },
-      { type: "word", meaning: "여름", text: "صَيْفٌ" },
-      { type: "word", meaning: "겨울", text: "شِتَاءٌ" },
-      { type: "word", meaning: "봄", text: "رَبِيعٌ" },
-      { type: "word", meaning: "가을", text: "خَرِيفٌ" },
-      { type: "word", meaning: "불", text: "نَارٌ" },
-      { type: "word", meaning: "빛", text: "ضَوْءٌ" },
-      { type: "word", meaning: "그림", text: "رَسْمٌ" },
-
-      // 짧은 문장
-      { type: "sentence-short", meaning: "안녕하세요.", text: "السَّلَامُ عَلَيْكُمْ." },
-      { type: "sentence-short", meaning: "좋은 아침입니다.", text: "صَبَاحُ الخَيْرِ." },
-      { type: "sentence-short", meaning: "좋은 저녁입니다.", text: "مَسَاءُ الخَيْرِ." },
-      { type: "sentence-short", meaning: "저는 잘 지내요.", text: "أَنَا بِخَيْرٍ." },
-      { type: "sentence-short", meaning: "당신의 이름은 무엇인가요?", text: "مَا اسْمُكَ؟" },
-      { type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
-      { type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِلِقَائِكَ." },
-      { type: "sentence-short", meaning: "어디에서 왔나요?", text: "مِنْ أَيْنَ أَنْتَ؟" },
-      { type: "sentence-short", meaning: "저는 한국에서 왔어요.", text: "أَنَا مِنْ كُورِيَا." },
-      { type: "sentence-short", meaning: "감사합니다.", text: "شُكْرًا جَزِيلًا." },
-      { type: "sentence-short", meaning: "죄송합니다.", text: "آسِفٌ." },
-      { type: "sentence-short", meaning: "괜찮아요.", text: "لَا بَأْسَ." },
-      { type: "sentence-short", meaning: "이것은 얼마인가요?", text: "كَمْ سِعْرُ هَذَا؟" },
-      { type: "sentence-short", meaning: "저는 학생입니다.", text: "أَنَا طَالِبٌ." },
-      { type: "sentence-short", meaning: "지금 몇 시인가요?", text: "كَمِ السَّاعَةُ الآنَ؟" },
-      { type: "sentence-short", meaning: "저는 배고파요.", text: "أَنَا جَائِعٌ." },
-      { type: "sentence-short", meaning: "저는 목말라요.", text: "أَنَا عَطْشَانُ." },
-      { type: "sentence-short", meaning: "더 천천히 말해 주세요.", text: "تَحَدَّثْ بِبُطْءٍ مِنْ فَضْلِكَ." },
-      { type: "sentence-short", meaning: "저는 이해했어요.", text: "فَهِمْتُ." },
-      { type: "sentence-short", meaning: "저는 이해하지 못했어요.", text: "لَمْ أَفْهَمْ." },
-      { type: "sentence-short", meaning: "하루가 정말 길었어요.", text: "كَانَ الْيَوْمُ طَوِيلًا جِدًّا." },
-      { type: "sentence-short", meaning: "날씨가 정말 좋아요.", text: "الجَوُّ جَمِيلٌ جِدًّا." },
-      { type: "sentence-short", meaning: "비가 오고 있어요.", text: "إِنَّهُ يَمْطُرُ." },
-      { type: "sentence-short", meaning: "저는 여행을 좋아해요.", text: "أُحِبُّ السَّفَرَ." },
-      { type: "sentence-short", meaning: "사진 찍어도 될까요?", text: "هَلْ يُمْكِنُنِي أَنْ أُصَوِّرَ؟" },
-      { type: "sentence-short", meaning: "도와주셔서 감사합니다.", text: "شُكْرًا عَلَى مُسَاعَدَتِكَ." },
-      { type: "sentence-short", meaning: "행운을 빕니다!", text: "حَظًّا سَعِيدًا!" },
-      { type: "sentence-short", meaning: "조심히 가세요.", text: "اِذْهَبْ بِالسَّلَامَةِ." },
-      { type: "sentence-short", meaning: "곧 다시 만나요.", text: "أَرَاكَ قَرِيبًا." },
-      { type: "sentence-short", meaning: "정말 멋져요!", text: "رَائِعٌ جِدًّا!" },
-      { type: "sentence-short", meaning: "서두르지 않으면 성공한다.", text: "مَنْ جَدَّ وَجَدَ." },
-      { type: "sentence-short", meaning: "지식은 빛이다.", text: "الْعِلْمُ نُورٌ." },
-      { type: "sentence-short", meaning: "인내는 열쇠이다.", text: "الصَّبْرُ مِفْتَاحُ الْفَرَجِ." },
-      { type: "sentence-short", meaning: "손님은 환영받는다.", text: "الضَّيْفُ مَرْحُوبٌ بِهِ." },
-      { type: "sentence-short", meaning: "건강은 축복이다.", text: "الصِّحَّةُ نِعْمَةٌ." },
-      { type: "sentence-short", meaning: "시간은 금이다.", text: "الوَقْتُ ذَهَبٌ." },
-      { type: "sentence-short", meaning: "연습은 완벽을 만든다.", text: "التَّكْرَارُ يُعَلِّمُ الشُّطَّارَ." },
-      { type: "sentence-short", meaning: "천천히 가면 안전하다.", text: "فِي التَّأَنِّي السَّلَامَةُ." },
-      { type: "sentence-short", meaning: "길은 걷는 사람에게 열려 있다.", text: "الطَّرِيقُ لِمَنْ يَمْشِي." },
-      { type: "sentence-short", meaning: "정답보다 진심이 중요하다.", text: "النِّيَّةُ خَيْرٌ مِنَ العَمَلِ." },
-
-      // 긴 글
- {
-  type: "sentence-long",
-  title: "길가의 꽃",
-  meaning: "자연을 아끼는 마음을 알려주는 이야기",
-  text:
-"مَشَتْ بِنْتٌ صَغِيرَةٌ فِي الطَّرِيقِ إِلَى الْمَدْرَسَةِ.\n" +
-"رَأَتْ زَهْرَةً جَمِيلَةً تَنْبُتُ بِجَانِبِ الطَّرِيقِ.\n" +
-"قَالَتْ: لَنْ أَقْطِفَهَا، سَتَبْقَى جَمِيلَةً هُنَا.\n" +
-"كُلَّ يَوْمٍ تَمُرُّ وَتُلْقِي عَلَيْهَا السَّلَامَ.\n" +
-"وَنَمَتِ الزَّهْرَةُ أَكْثَرَ وَأَصْبَحَتْ أَجْمَلَ.",
-  korText:
-"한 소녀가 학교에 가는 길을 걷고 있었습니다.\n" +
-"그녀는 길가에 피어난 아름다운 꽃을 보았습니다.\n" +
-"그녀는 '꺾지 말아야지. 여기 있어야 더 아름다워'라고 말했습니다.\n" +
-"그녀는 매일 꽃에게 인사를 했습니다.\n" +
-"꽃은 더 자라고 더 아름다워졌습니다."
- },
-
-      {
-  type: "sentence-long",
-  title: "작은 달",
-  meaning: "하늘을 바라보는 아이의 상상 이야기",
-  text:
-"نَظَرَ طِفْلٌ إِلَى السَّمَاءِ فِي اللَّيْلِ.\n" +
-"رَأَى قَمَرًا صَغِيرًا خَلْفَ السُّحُبِ.\n" +
-"قَالَ الطِّفْلُ: لَيْتَنِي أَلْعَبُ مَعَكَ.\n" +
-"ظَهَرَ الْقَمَرُ أَكْثَرَ وَأَضَاءَ لَهُ الطَّرِيقَ.\n" +
-"فَرِحَ الطِّفْلُ وَشَكَرَ الْقَمَرَ.",
-  korText:
-"한 아이가 밤하늘을 올려다보았습니다.\n" +
-"아이에게는 구름 뒤에 작은 달이 보였습니다.\n" +
-"아이는 '너랑 놀 수 있다면 좋겠다'라고 말했습니다.\n" +
-"달은 더 밝게 나타나 아이의 길을 비추었습니다.\n" +
-"아이는 기뻐하며 달에게 감사했습니다."
-      },
-{
-  type: "sentence-long",
-  title: "빨간 공",
-  meaning: "잃어버린 물건을 찾아주는 이야기",
-  text:
-"فَقَدَتْ بِنْتٌ كُرَتَهَا الْحَمْرَاءَ فِي الْمَلْعَبِ.\n" +
-"بَحَثَتْ فِي كُلِّ مَكَانٍ وَلَمْ تَجِدْهَا.\n" +
-"رَآهَا وَلَدٌ تَبْكِي وَسَأَلَهَا: مَاذَا حَدَثَ؟\n" +
-"قَالَتْ: فَقَدْتُ كُرَتِي.\n" +
-"بَعْدَ بَحْثٍ قَصِيرٍ وَجَدَ الوَلَدُ الْكُرَةَ وَأَعَادَهَا إِلَيْهَا.",
-  korText:
-"한 소녀가 운동장에서 자신의 빨간 공을 잃어버렸습니다.\n" +
-"그녀는 여기저기 찾았지만 발견하지 못했습니다.\n" +
-"소년이 그녀가 우는 것을 보고 무슨 일이냐고 물었습니다.\n" +
-"소녀는 '내 공을 잃어버렸어'라고 말했습니다.\n" +
-"잠시 후 소년은 공을 찾아 그녀에게 돌려주었습니다."
-},
-
-      {
-  type: "sentence-long",
-  title: "새로운 친구",
-  meaning: "친구를 사귀는 따뜻한 이야기",
-  text:
-"ذَهَبَ وَلَدٌ إِلَى الْحَدِيقَةِ لِيَلْعَبَ.\n" +
-"رَأَى وَلَدًا آخَرَ يَجْلِسُ وَحْدَهُ.\n" +
-"قَالَ لَهُ: هَلْ تُرِيدُ أَنْ تَلْعَبَ مَعِي؟\n" +
-"ابْتَسَمَ الوَلَدُ الثَّانِي وَوَافَقَ.\n" +
-"وَصَارَا صَدِيقَيْنِ جُدُدًا.",
-  korText:
-"한 소년이 놀기 위해 공원에 갔습니다.\n" +
-"그는 혼자 앉아 있는 또 다른 소년을 보았습니다.\n" +
-"소년은 '나랑 놀래?'라고 말했습니다.\n" +
-"두 번째 소년은 미소 지으며 동의했습니다.\n" +
-"그들은 새로운 친구가 되었습니다."
-      },
-
-      {
-  type: "sentence-long",
-  title: "고양이와 개미",
-  meaning: "작은 도움도 소중하다는 이야기",
-  text:
-"رَأَى قِطٌّ نَمْلَةً تَسْقُطُ فِي الْمَاءِ.\n" +
-"سَاعَدَهَا القِطُّ وَأَخْرَجَهَا مِنَ الْمَاءِ.\n" +
-"شَكَرَتِ النَّمْلَةُ القِطَّ وَقَالَتْ لَهُ: سَأُسَاعِدُكَ يَوْمًا مَا.\n" +
-"بَعْدَ قَلِيلٍ سَقَطَ القِطُّ فِي حُفْرَةٍ صَغِيرَةٍ.\n" +
-"جَمَعَتِ النَّمْلَةُ أَصْدِقَاءَهَا وَسَاعَدُوهُ عَلَى الْخُرُوجِ.",
-  korText:
-"고양이는 물에 빠진 개미를 보았습니다.\n" +
-"고양이는 개미를 도와 물 밖으로 꺼내주었습니다.\n" +
-"개미는 고양이에게 언젠가 도와주겠다고 말했습니다.\n" +
-"조금 후 고양이가 작은 구덩이에 빠졌습니다.\n" +
-"개미는 친구들을 불러 고양이를 구해주었습니다."
-      },
-
-      {
-  type: "sentence-long",
-  title: "행복한 왕자",
-  meaning: "타인을 위해 자신을 희생하는 동상과 제비의 이야기",
-  text:
-"وُضِعَ تِمْثَالُ الأَمِيرِ السَّعِيدِ فِي وَسَطِ الْمَدِينَةِ، وَكَانَ مُغَطًّى بِالذَّهَبِ وَالأَحْجَارِ.\n" +
-"كَانَ الأَمِيرُ يَرَى فَقْرَ النَّاسِ مِنْ فَوْقِ الْعَمُودِ وَيَشْعُرُ بِالْحُزْنِ.\n" +
-"جَاءَ عِنْدَهُ عُصْفُورٌ صَغِيرٌ، فَطَلَبَ مِنْهُ الأَمِيرُ أَنْ يُعْطِيَ جَوَاهِرَهُ لِلْفُقَرَاءِ.\n" +
-"بِالتَّدْرِيجِ أَزَالَ العُصْفُورُ الذَّهَبَ وَالأَحْجَارَ وَوَزَّعَهَا عَلَى الْمُحْتَاجِينَ.\n" +
-"وَفِي النِّهَايَةِ تَجَمَّدَ العُصْفُورُ مِنَ الْبَرْدِ، وَتَشَقَّقَ التِّمْثَالُ، وَلَكِنَّ النَّاسَ تَذَكَّرُوا قَلْبَهُمَا الطَّيِّبَ.",
-  korText:
-"도시 한가운데에 행복한 왕자의 동상이 세워져 있었고, 금과 보석으로 덮여 있었습니다.\n" +
-"왕자는 높은 자리에서 가난한 사람들을 보며 슬퍼했습니다.\n" +
-"작은 제비가 동상에 왔고 왕자는 제비에게 보석을 가난한 이들에게 나누어 달라고 부탁했습니다.\n" +
-"제비는 금과 보석을 하나씩 떼어 가난한 사람들에게 나누어 주었습니다.\n" +
-"마지막에는 제비는 추위로 얼어 죽고 동상도 금이 갔지만 사람들은 그들의 선한 마음을 기억했습니다."
-      },
-
-      {
-  type: "sentence-long",
-  title: "성냥팔이 소녀",
-  meaning: "추운 겨울밤 성냥을 파는 작은 소녀의 이야기",
-  text:
-"فِي لَيْلَةِ شِتَاءِ بَارِدَةٍ كَانَتْ فَتَاةٌ صَغِيرَةٌ تَمْشِي فِي الشَّارِعِ وَبِيَدِهَا عُلْبَةُ كِبْرِيتٍ.\n" +
-"لَمْ يَشْتَرِ أَحَدٌ مِنْهَا شَيْئًا، وَكَانَتْ تَرْتَجِفُ مِنَ الْبَرْدِ.\n" +
-"أَشْعَلَتْ عُودًا مِنَ الْكِبْرِيتِ فَرَأَتْ دِفْئًا وَطَعَامًا وَنُورًا.\n" +
-"ثُمَّ أَشْعَلَتْ عُودًا آخَرَ فَرَأَتْ جَدَّتَهَا الَّتِي كَانَتْ تُحِبُّهَا.\n" +
-"فِي الصَّبَاحِ وَجَدَهَا النَّاسُ نَائِمَةً بِهُدُوءٍ وَبِجَانِبِهَا أَعْوَادُ الْكِبْرِيتِ الْمُتَبَقِّيَةِ.",
-  korText:
-"추운 겨울밤 한 소녀가 성냥 상자를 들고 길을 걷고 있었습니다.\n" +
-"아무도 성냥을 사지 않았고 그녀는 추위에 떨고 있었습니다.\n" +
-"그녀는 성냥을 하나 켰고 따뜻함과 음식과 빛을 보았습니다.\n" +
-"또 다른 성냥을 켰을 때 그녀는 사랑하는 할머니를 보았습니다.\n" +
-"아침이 되어 사람들은 그녀가 성냥이 옆에 놓인 채 조용히 잠든 것을 발견했습니다."
-      },
-
-      {
-  type: "sentence-long",
-  title: "알라딘과 램프",
-  meaning: "가난한 청년 알라딘이 요술램프를 통해 삶이 변하는 이야기",
-  text:
-"كَانَ عَلَاءُ الدِّينِ فَتًى فَقِيرًا يَعِيشُ مَعَ أُمِّهِ فِي بَيْتٍ صَغِيرٍ.\n" +
-"فِي يَوْمٍ طَلَبَ مِنْهُ رَجُلٌ غَرِيبٌ أَنْ يَدْخُلَ مَغَارَةً ضَخْمَةً لِإِخْرَاجِ مِصْبَاحٍ قَدِيمٍ.\n" +
-"وَجَدَ عَلَاءُ الدِّينِ الْمِصْبَاحَ، وَلَمَّا فَرَكَهُ ظَهَرَ جِنِّيٌّ قَوِيٌّ يُلَبِّي الأَمَانِي.\n" +
-"بِمُسَاعَدَةِ الجِنِّيِّ حَصَلَ عَلَاءُ الدِّينِ عَلَى الثَّرْوَةِ وَسَاعَدَ أُمَّهُ.\n" +
-"وَفِي النِّهَايَةِ أَصْبَحَ مِنْ أَسْعَدِ الشَّبَابِ فِي الْمَدِينَةِ.",
-  korText:
-"알라딘은 어머니와 작은 집에서 사는 가난한 청년이었습니다.\n" +
-"어느 날 낯선 남자가 알라딘에게 큰 동굴에 들어가 오래된 램프를 가져오라고 부탁했습니다.\n" +
-"알라딘이 램프를 발견해 문질렀더니 소원을 들어주는 강한 지니가 나타났습니다.\n" +
-"지니의 도움으로 알라딘은 부를 얻고 어머니를 도왔습니다.\n" +
-"마지막에는 도시에서 가장 행복한 청년이 되었습니다."
-      },
-
-      {
-  type: "sentence-long",
-  title: "까마귀와 여우",
-  meaning: "아첨에 속지 말라는 교훈",
-  text:
-"كَانَ غُرَابٌ يَحْمِلُ قِطْعَةَ جُبْنٍ فِي مِنْقَارِهِ وَجَلَسَ عَلَى غُصْنٍ عَالٍ.\n" +
-"رَآهُ ثَعْلَبٌ مَاكِرٌ وَأَرَادَ الْحُصُولَ عَلَى الْجُبْنِ.\n" +
-"قَالَ الثَّعْلَبُ: يَا غُرَابُ، إِنَّ صَوْتَكَ جَمِيلٌ، هَلْ تُغَنِّي لِي؟\n" +
-"فَتَحَ الغُرَابُ فَمَهُ لِيُغَنِّي، فَسَقَطَتِ الجُبْنَةُ إِلَى الأَرْضِ.\n" +
-"أَخَذَهَا الثَّعْلَبُ وَهَرَبَ ضَاحِكًا.",
-  korText:
-"까마귀는 부리에 치즈 한 조각을 물고 높은 가지에 앉아 있었습니다.\n" +
-"여우가 그것을 보고 치즈를 얻고 싶어했습니다.\n" +
-"여우가 말했습니다: 까마귀야, 네 목소리는 정말 아름답다. 나에게 노래를 불러줄 수 있겠니?\n" +
-"까마귀는 노래하려고 입을 열었고 치즈는 땅으로 떨어졌습니다.\n" +
-"여우는 치즈를 집어 들고 웃으며 도망쳤습니다."
-      },
-
-      {
-  type: "sentence-long",
-  title: "사자와 쥐",
-  meaning: "작은 도움도 큰 은혜가 될 수 있다는 이야기",
-  text:
-"فِي يَوْمٍ مِنَ الأَيَّامِ كَانَ الأَسَدُ نَائِمًا تَحْتَ شَجَرَةٍ كَبِيرَةٍ.\n" +
-"مَرَّ فَأْرٌ صَغِيرٌ فَوَقَعَ عَلَى ظَهْرِ الأَسَدِ بِالْخَطَإِ.\n" +
-"غَضِبَ الأَسَدُ وَأَمْسَكَ بِالْفَأْرِ، وَلَكِنَّ الفَأْرَ رَجَاهُ أَنْ يَعْفُوَ عَنْهُ.\n" +
-"تَرَكَ الأَسَدُ الفَأْرَ يَذْهَبُ، وَبَعْدَ أَيَّامٍ وَقَعَ الأَسَدُ فِي شَبَكَةِ صَيَّادٍ.\n" +
-"سَمِعَ الفَأْرُ صَرَاخَ الأَسَدِ، فَقَرَضَ الحِبَالَ حَتَّى أَطْلَقَهُ.",
-  korText:
-"어느 날 사자가 큰 나무 아래에서 자고 있었습니다.\n" +
-"작은 쥐가 지나가다가 실수로 사자의 등에 올라탔습니다.\n" +
-"사자는 화가 나서 쥐를 붙잡았지만, 쥐는 용서를 구했습니다.\n" +
-"사자는 쥐를 놓아주었고, 며칠 후 사자는 사냥꾼의 그물에 걸렸습니다.\n" +
-"쥐는 사자의 울음소리를 듣고 와서 줄을 갉아 끊어 사자를 구해주었습니다."
-      },
-
-      {
-  type: "sentence-long",
-  title: "토끼와 거북이",
-  meaning: "토끼와 거북이의 우화 전체",
-  text:
-"فِي يَوْمٍ مِنَ الأَيَّامِ تَفَاخَرَ أَرْنَبٌ سَرِيعٌ أَمَامَ السَّلْحَفاةِ وَقَالَ لَهَا: أَنَا أَسْرَعُ مِنْكِ بِكَثِيرٍ، وَلَنْ تَسْتَطِيعِي مُنَافَسَتِي.\n" +
-"غَضِبَتِ السَّلْحَفاةُ وَقَالَتْ بِهُدُوءٍ: لِنَتَسَابَقْ وَنَرَى مَنْ سَيَصِلُ أَوَّلًا.\n" +
-"ضَحِكَ الأَرْنَبُ وَقَبِلَ التَّحَدِّي، ثُمَّ حَدَّدَا نُقْطَةَ البِدَايَةِ وَالخِتَامِ.\n" +
-"بَدَأَ السِّبَاقُ، فَجَرَى الأَرْنَبُ بِسُرْعَةٍ كَبِيرَةٍ وَتَرَكَ السَّلْحَفاةَ وَرَاءَهُ.\n" +
-"بَعْدَ مَسَافَةٍ طَوِيلَةٍ شَعَرَ الأَرْنَبُ بِالتَّعَبِ، فَقَالَ: سَأَنَامُ قَلِيلًا، فَالسَّلْحَفاةُ لَنْ تَلْحَقَ بِي.\n" +
-"وَاصَلَتِ السَّلْحَفاةُ المَشْيَ بِهُدُوءٍ وَلَمْ تَتَوَقَّفْ.\n" +
-"عِنْدَمَا اسْتَيْقَظَ الأَرْنَبُ وَجَدَ السَّلْحَفاةَ قَرِيبَةً مِنْ خَطِّ النِّهَايَةِ، فَحَاوَلَ اللَّحَاقَ بِهَا سَرِيعًا.\n" +
-"لَكِنَّ السَّلْحَفاةَ سَبَقَتْهُ وَوَصَلَتْ إِلَى الخَطِّ أَوَّلًا.\n" +
-"تَعَلَّمَ الأَرْنَبُ الدَّرْسَ وَقَالَ: السُّرْعَةُ لَيْسَتْ كُلَّ شَيْءٍ، وَالمُثَابَرَةُ هِيَ السِّرُّ الحَقِيقِيُّ لِلنَّجَاحِ.",
-  korText:
-"어느 날 빠른 토끼가 거북이 앞에서 자랑하며 말했다. ‘나는 너보다 훨씬 빨라. 너는 나를 절대 이길 수 없어.’\n" +
-"거북이는 화가 났지만 침착하게 말했다. ‘그럼 경주를 해서 누가 먼저 도착하는지 보자.’\n" +
-"토끼는 비웃으며 도전을 받아들였고 출발점과 도착점을 정했다.\n" +
-"경주가 시작되자 토끼는 엄청난 속도로 달려 거북이를 멀리 뒤로 남겨두었다.\n" +
-"멀리 달린 토끼는 피곤함을 느끼며 말했다. ‘조금만 자도 되겠지. 거북이는 절대 못 따라와.’\n" +
-"거북이는 멈추지 않고 조용히 계속 걸었다.\n" +
-"잠에서 깬 토끼는 거북이가 도착점 가까이에 있는 것을 보고 급히 달려갔다.\n" +
-"하지만 거북이가 먼저 도착선에 도착했다.\n" +
-"토끼는 ‘빠르기만 하면 되는 것이 아니다. 꾸준함이 진짜 비결이다.’라는 교훈을 얻었다."
-      },
-      
-      {
-  type: "sentence-long",
-  title: "바람과 태양",
-  meaning: "바람과 태양의 힘겨루기",
-  text:
-"اخْتَصَمَتِ الرِّيحُ وَالشَّمْسُ يَوْمًا وَقَالَتِ الرِّيحُ: أَنَا أَقْوَى مِنْكِ، فَلا أَحَدَ يَقِفُ أَمَامَ عَصْفِي.\n" +
-"فَأَجَابَتِ الشَّمْسُ بِهُدُوءٍ: القُوَّةُ لَيْسَتْ بِالْعُنْفِ، بَلْ بِالتَّأْثِيرِ.\n" +
-"رَأَتِ الرِّيحُ رَجُلًا يَمْشِي بِمِعْطَفٍ، فَقَالَتْ: سَأُثْبِتُ لَكِ قُوَّتِي، سَأَجْعَلُهُ يَنْزِعُ مِعْطَفَهُ.\n" +
-"بَدَأَتِ الرِّيحُ تَهُبُّ بِقُوَّةٍ شَدِيدَةٍ، فَتَمَسَّكَ الرَّجُلُ بِمِعْطَفِهِ أَكْثَرَ.\n" +
-"وَكُلَّمَا زَادَتِ الرِّيحُ قُوَّتَهَا، شَدَّ الرَّجُلُ مِعْطَفَهُ حَوْلَ جَسَدِهِ.\n" +
-"ثُمَّ جَاءَ دَوْرُ الشَّمْسِ، فَأَشْرَقَتْ بِهُدُوءٍ وَبِدِفْءٍ.\n" +
-"شَعَرَ الرَّجُلُ بِالحَرَارَةِ فَخَفَّفَ ثِيَابَهُ، ثُمَّ نَزَعَ مِعْطَفَهُ طَوْعًا.\n" +
-"قَالَتِ الشَّمْسُ: هَكَذَا يَكُونُ القُوَّةُ، لَيْسَ بِالعُنْفِ، بَلْ بِالحِكْمَةِ.",
-  korText:
-"어느 날 바람과 태양이 서로 누가 더 강한지를 두고 말다툼했다.\n" +
-"바람은 ‘나는 강하다. 내 바람 앞에서는 아무도 못 버틴다’라고 말했다.\n" +
-"태양은 ‘힘은 폭력이 아니라 영향력에 있다’고 조용히 말했다.\n" +
-"바람은 외투를 입은 한 남자를 보며 말했다. ‘저 남자에게서 외투를 벗기게 하겠다.’\n" +
-"바람이 강하게 불기 시작하자 남자는 외투를 더 꽉 붙잡았다.\n" +
-"바람이 더 세게 불수록 남자는 외투를 더 단단히 조여 입었다.\n" +
-"이제 태양이 나서서 조용하고 따뜻하게 빛을 비추었다.\n" +
-"남자는 더워져서 외투를 벗어버렸다.\n" +
-"태양은 말했다. ‘진짜 힘은 폭력이 아니라 지혜에 있다.’"
-      },
-
-      {
-  type: "sentence-long",
-  title: "소년과 나무",
-  meaning: "소년과 나무의 우정 이야기",
-  text:
-"كَانَ هُنَاكَ فَتًى صَغِيرٌ يَزُورُ شَجَرَةً قَدِيمَةً فِي كُلِّ يَوْمٍ.\n" +
-"كَانَ يَجْلِسُ تَحْتَ ظِلِّهَا وَيَتَحَدَّثُ مَعَهَا وَيَلْعَبُ بِأَغْصَانِهَا.\n" +
-"وَكَبِرَ الفَتَى، فَجَاءَ يَوْمًا وَقَالَ: أُرِيدُ مَالًا.\n" +
-"فَقَالَتِ الشَّجَرَةُ: خُذْ ثِمَارِي وَبِعْهَا، فَهِيَ لَكَ.\n" +
-"فَعَادَ الفَتَى وَأَخَذَ الثِّمَارَ وَبَاعَهَا، ثُمَّ غَابَ طَوِيلًا.\n" +
-"وَعَادَ بَعْدَ سَنَوَاتٍ وَقَالَ: أُرِيدُ بَيْتًا.\n" +
-"فَقَالَتِ الشَّجَرَةُ: خُذْ أَغْصَانِي وَابْنِ بَيْتًا لِنَفْسِكَ.\n" +
-"فَقَطَعَ الفَتَى الأَغْصَانَ وَبَنَى بَيْتًا، وَتَرَكَ الشَّجَرَةَ عَارِيَةً.\n" +
-"وَعَادَ يَوْمًا وَقَالَ: أُرِيدُ قَارِبًا.\n" +
-"فَقَالَتِ الشَّجَرَةُ: خُذْ جِذْعِي وَاصْنَعْ مِنْهُ قَارِبًا.\n" +
-"فَصَنَعَ قَارِبًا وَسَافَرَ بَعِيدًا.\n" +
-"وَعِنْدَمَا رَجَعَ وَهُوَ شَيْخٌ كَبِيرٌ، قَالَ: أُرِيدُ مَكَانًا أَرْتَاحُ فِيهِ.\n" +
-"فَقَالَتِ الشَّجَرَةُ وَهِيَ جِذْعٌ صَغِيرٌ: أَنَا لَا أَمْلِكُ شَيْئًا، وَلَكِنْ يُمْكِنُكَ الجُلُوسُ عَلَيَّ.\n" +
-"فَجَلَسَ الشَّيْخُ عَلَى الجِذْعِ وَبَكَى، وَشَكَرَ الشَّجَرَةَ عَلَى كُلِّ مَا قَدَّمَتْهُ لَهُ.",
-  korText:
-"어느 날 소년은 매일 오래된 나무를 찾아가 그늘 아래 앉아 이야기하고 놀곤 했다.\n" +
-"소년이 자라자 그는 ‘돈이 필요해’라고 말했다.\n" +
-"나무는 ‘내 열매를 가져가 팔아라’라고 했다.\n" +
-"소년은 열매를 팔고 떠났다.\n" +
-"세월이 지나 그는 다시 와서 ‘집이 필요해’라고 말했다.\n" +
-"나무는 ‘내 가지를 가져가 집을 지어라’라고 했다.\n" +
-"소년은 가지로 집을 지었고 나무는 앙상해졌다.\n" +
-"또 시간이 지나 그는 ‘배가 필요해’라고 했다.\n" +
-"나무는 ‘내 줄기를 잘라 배를 만들어라’라고 했다.\n" +
-"소년은 배를 만들고 떠났다.\n" +
-"노인이 되어 돌아온 그는 ‘쉴 곳이 필요해’라고 말했다.\n" +
-"나무는 ‘나는 아무것도 남지 않았지만, 내 남은 줄기에 앉아 쉬어도 된다’라고 말했다.\n" +
-"노인은 줄기에 앉아 울며 나무의 모든 사랑을 떠올렸다."
-      },
-      
-      {
-  type: "sentence-long",
-  title: "어부와 큰 물고기",
-  meaning: "어부가 큰 물고기와 겪는 이야기",
-  text:
-"خَرَجَ صَيَّادٌ فَقِيرٌ إِلَى البَحْرِ فِي صَبَاحٍ مُبَكِّرٍ لِيَصْطَادَ السَّمَكَ.\n" +
-"أَلْقَى شَبَكَتَهُ مَرَّةً وَثَانِيَةً، وَلَكِنَّهُ لَمْ يَجِدْ شَيْئًا.\n" +
-"وَعِنْدَمَا كَانَ سَيَعُودُ، شَعَرَ بِشَيْءٍ ثَقِيلٍ فِي شَبَكَتِهِ.\n" +
-"سَحَبَ الشَّبَكَةَ وَإِذَا بِسَمَكَةٍ كَبِيرَةٍ جِدًّا تَقْفِزُ فَوْقَ المَاءِ.\n" +
-"قَالَتِ السَّمَكَةُ لِلصَّيَّادِ: أَرْجُوكَ أَنْ تُطْلِقَ سَرَاحِي، فَأَنَا كَبِيرَةٌ جِدًّا لِلطَّبْخِ، وَلَنْ تَسْتَفِيدَ مِنِّي.\n" +
-"فَكَّرَ الصَّيَّادُ ثُمَّ قَالَ: مَاذَا سَأَسْتَفِيدُ مِنْ سَمَكَةٍ صَغِيرَةٍ قَدْ أَصْطَادُهَا بَدَلَكِ؟\n" +
-"فَقَالَتِ السَّمَكَةُ: إِذَا أَطْلَقْتَنِي سَأَدُلُّكَ عَلَى مَكَانٍ فِيهِ سَمَكٌ كَثِيرٌ.\n" +
-"صَمَتَ الصَّيَّادُ قَلِيلًا، ثُمَّ أَطْلَقَ سَرَاحَ السَّمَكَةِ.\n" +
-"فَدَلَّتْهُ السَّمَكَةُ عَلَى مَكَانٍ مَلِيءٍ بِالسَّمَكِ.\n" +
-"فَمَلَأَ الصَّيَّادُ قَارِبَهُ وَعَادَ إِلَى بَيْتِهِ سَعِيدًا.\n" +
-"وَقَالَ: أَحْيَانًا تَكُونُ الرَّحْمَةُ أَفْضَلَ مِنَ الطَّمَعِ.",
-  korText:
-"가난한 어부는 새벽 일찍 바다로 나가 물고기를 잡으려 했다.\n" +
-"그는 그물을 여러 번 던졌지만 아무것도 잡지 못했다.\n" +
-"돌아가려던 순간 그물에서 무거운 느낌이 들었다.\n" +
-"그물을 끌어올리자 아주 큰 물고기가 뛰어오르고 있었다.\n" +
-"큰 물고기는 어부에게 ‘제발 나를 풀어주세요. 저는 너무 커서 요리하기 어렵습니다.’라고 말했다.\n" +
-"어부는 고민했지만 물고기는 ‘나를 놓아준다면 물고기가 많은 곳을 알려줄게요’라고 말했다.\n" +
-"어부는 결국 물고기를 풀어주었고, 물고기는 풍부한 어장의 위치를 알려주었다.\n" +
-"어부는 배를 가득 채워 집으로 돌아왔고 말했다. ‘가끔은 욕심보다 자비가 더 큰 보답을 준다.’"
-      },
-
-      {
-  type: "sentence-long",
-  title: "상인과 정령",
-  meaning: "상인이 정령을 만나 벌어지는 이야기",
-  text:
-"خَرَجَ تَاجِرٌ فِي سَفَرٍ بَعِيدٍ وَجَلَسَ تَحْتَ شَجَرَةٍ لِيَسْتَرِيحَ.\n" +
-"أَخَذَ التَّاجِرُ يَأْكُلُ تَمْرًا، ثُمَّ رَمَى النَّوَى عَلَى الأَرْضِ.\n" +
-"فَظَهَرَ عِفْرِيتٌ كَبِيرٌ أَمَامَهُ وَقَالَ: سَتَمُوتُ اليَوْمَ، لِأَنَّكَ قَتَلْتَ ابْنِي بِهَذِهِ النَّوَاةِ.\n" +
-"ارْتَعَشَ التَّاجِرُ وَقَالَ: لَمْ أَعْلَمْ ذَلِكَ، وَأَطْلُبُ مِنْكَ المَغْفِرَةَ.\n" +
-"قَالَ العِفْرِيتُ: لَنْ أَعْفُوَ عَنْكَ.\n" +
-"فَقَالَ التَّاجِرُ: إِذًا دَعْنِي أَرْجِعْ إِلَى أَهْلِي يَوْمًا وَاحِدًا لِأُوَدِّعَهُمْ، ثُمَّ أَعُودُ إِلَيْكَ.\n" +
-"ضَحِكَ العِفْرِيتُ وَقَالَ: مَنْ يَرْجِعُ بَعْدَ أَنْ أُطْلِقَهُ؟\n" +
-"فَقَالَ التَّاجِرُ: أُقْسِمُ أَنِّي سَأَرْجِعُ.\n" +
-"فَوَافَقَ العِفْرِيتُ وَأَطْلَقَهُ.\n" +
-"عَادَ التَّاجِرُ إِلَى أَهْلِهِ، ثُمَّ فِي المَوْعِدِ عَادَ إِلَى المَكَانِ نَفْسِهِ.\n" +
-"دُهِشَ العِفْرِيتُ وَقَالَ: لَمْ أَتَوَقَّعْ أَنْ تَرْجِعَ.\n" +
-"فَقَالَ التَّاجِرُ: أَنَا رَجُلٌ أُوفِي بِوَعْدِي.\n" +
-"فَتَأَثَّرَ العِفْرِيتُ وَأَطْلَقَ سَرَاحَهُ، وَقَالَ: الإِخْلَاصُ أَقْوَى مِنَ الخَوْفِ.",
-  korText:
-"한 상인이 먼 여행을 하다가 나무 아래에서 쉬고 있었다.\n" +
-"그는 대추를 먹으며 씨를 땅에 던졌다.\n" +
-"그러자 정령이 나타나 ‘너는 지금 내 아들을 죽였으니 죽어야 한다’라고 말했다.\n" +
-"상인은 몰랐다며 용서를 구했지만 정령은 받아들이지 않았다.\n" +
-"상인은 ‘하루만 가족에게 다녀오게 해달라’며 부탁했다.\n" +
-"정령은 비웃었지만 상인은 돌아오겠다고 맹세했고 정령은 그를 놓아 주었다.\n" +
-"상인은 가족에게 갔다가 약속대로 다시 정령에게 돌아왔다.\n" +
-"정령은 놀라며 ‘정말 올 줄 몰랐다’라고 말했고 상인은 ‘나는 약속을 지키는 사람’이라 답했다.\n" +
-"정령은 감동하여 그를 살려주며 말했다. ‘진정성은 두려움보다 강하다.’"
-      }
-    ];
-
-    // ---------- 상단 탭 ----------
-    const mainTabButtons = document.querySelectorAll(".main-tab-btn");
-    const practiceSection = document.getElementById("practiceSection");
-    const gameSection = document.getElementById("gameSection");
-    let currentMode = "word";
-
-    mainTabButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        mainTabButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        const tab = btn.dataset.tab;
-
-        if (tab === "game") {
-          practiceSection.classList.remove("active");
-          gameSection.classList.add("active");
-        } else {
-          gameSection.classList.remove("active");
-          practiceSection.classList.add("active");
-          currentMode = tab;
-          setupPracticeMode();
-        }
-      });
-    });
-
-    // ---------- 연습 모드 ----------
-    const modeTitle = document.getElementById("modeTitle");
-    const practiceMeaning = document.getElementById("practiceMeaning");
-    const practiceTarget = document.getElementById("practiceTarget");
-    const practiceTypedDisplay = document.getElementById("practiceTypedDisplay");
-    const practiceInput = document.getElementById("practiceInput");
-    const practiceTopStats = document.getElementById("practiceTopStats");
-    const longSelector = document.getElementById("longSelector");
-    const longListEl = document.getElementById("longList");
-    const practiceNextBtn = document.getElementById("practiceNextBtn");
-
-    let practiceList = [];
-    let practiceIndex = 0;
-    let practiceCurrent = null;
-
-    // 긴 글 모드용 상태
-    let longSentenceIndex = 0;
-let currentLongSentences = [];
-let currentLongSentencesKor = [];   // ← 이 줄 추가
-
-    function updatePracticeTopStats(accuracy, typedLen, totalLen) {
-      const progressCount = (practiceList && practiceList.length > 0)
-        ? (practiceIndex + 1)
-        : 0;
-      practiceTopStats.textContent =
-        `진행도: ${progressCount}개 · 정확도: ${accuracy}% · ${typedLen} / ${totalLen} 글자`;
-    }
-
-    function buildLongList() {
-      longListEl.innerHTML = "";
-      practiceList.forEach((item, idx) => {
-        const div = document.createElement("div");
-        div.className = "long-item" + (idx === practiceIndex ? " selected" : "");
-        const title = item.title || item.meaning || `긴 글 ${idx + 1}`;
-        div.textContent = title;
-        div.addEventListener("click", () => {
-          practiceIndex = idx;
-          loadPracticeItem();
-          document.querySelectorAll(".long-item").forEach((el, i) => {
-            el.classList.toggle("selected", i === practiceIndex);
-          });
-        });
-        longListEl.appendChild(div);
-      });
-    }
-
-    function setupPracticeMode() {
-      if (currentMode === "word") {
-        modeTitle.textContent = "단어";
-        practiceList = shuffleArray(exercises.filter(ex => ex.type === "word"));
-        longSelector.classList.remove("active");
-      } else if (currentMode === "short") {
-        modeTitle.textContent = "문장";
-        practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-short"));
-        longSelector.classList.remove("active");
-      } else {
-  modeTitle.textContent = "긴 글";
-  // 기존: practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-long"));
-  practiceList = exercises.filter(ex => ex.type === "sentence-long"); // ← 셔플 제거
-  longSelector.classList.add("active");
-  buildLongList();
-      }
-    
-
-      if (practiceList.length === 0) {
-        practiceMeaning.textContent = "연습할 문장이 없습니다.";
-        practiceTarget.textContent = "";
-        practiceTypedDisplay.innerHTML = "";
-        practiceInput.value = "";
-        updatePracticeTopStats(100, 0, 0);
-        return;
-      }
-
-      practiceIndex = 0;
-      loadPracticeItem();
-    }
-
-    function showCurrentLongSentence() {
-  if (!practiceCurrent) return;
-
-  const sentence = currentLongSentences[longSentenceIndex] || "";
-
-  // 한국어 문장: 있으면 그 문장을, 없으면 전체 meaning/title 을 사용
-  let sentenceMeaning = "";
-  if (currentLongSentencesKor.length > 0 &&
-      longSentenceIndex < currentLongSentencesKor.length) {
-    sentenceMeaning = currentLongSentencesKor[longSentenceIndex];
-  } else {
-    sentenceMeaning = practiceCurrent.meaning || practiceCurrent.title || "";
+ <script>
+  // ---------- 공통 유틸 ----------
+  function stripDiacritics(str) {
+    // 아랍어 모음부호(타쉬킬) 제거
+    return str.replace(/[\u0610-\u061A\u064B-\u0652\u0670\u06D6-\u06ED]/g, "");
   }
 
-  practiceMeaning.textContent = sentenceMeaning;
-  practiceTarget.textContent = sentence;
+  function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
 
-  practiceTypedDisplay.innerHTML = "";
-  practiceInput.value = "";
+  function colorizeText(target, typed) {
+    const baseTarget = stripDiacritics(target);   // 자음 기준 목표
+    let html = "";
+    let correctCount = 0;
 
-  const baseLen = stripDiacritics(sentence).length;
-  updatePracticeTopStats(100, 0, baseLen);
-
-  document.querySelectorAll(".long-item").forEach((el, i) => {
-    el.classList.toggle("selected", i === practiceIndex);
-  });
-  practiceInput.focus();
+    for (let i = 0; i < typed.length; i++) {
+      const ch = typed[i];
+      const tgt = baseTarget[i] || "";
+      if (ch === tgt) {
+        html += '<span class="correct-char">' + ch + '</span>';
+        correctCount++;
+      } else {
+        html += '<span class="wrong-char">' + ch + '</span>';
+      }
     }
 
-    function loadPracticeItem() {
-      practiceCurrent = practiceList[practiceIndex];
+    const baseLen = baseTarget.length;
+    return { html, correctCount, baseLen };
+  }
 
-      if (currentMode === "long") {
-  const rawText = practiceCurrent.text || "";
-  currentLongSentences = rawText.split(/\n+/).filter(line => line.trim().length > 0);
+  // ---------- 문제 데이터 ----------
+  const exercises = [
+    // 단어
+    { type: "word", meaning: "책상", text: "مَكْتَبٌ" },
+    { type: "word", meaning: "학교", text: "مَدْرَسَةٌ" },
+    { type: "word", meaning: "친구", text: "صَدِيقٌ" },
 
-  const rawKor = practiceCurrent.korText || "";
-  currentLongSentencesKor = rawKor
-    ? rawKor.split(/\n+/).filter(line => line.trim().length > 0)
-    : [];
+    // 짧은 문장
+    { type: "sentence-short", meaning: "제 이름은 지훈입니다.", text: "اِسْمِي جِهُون." },
+    { type: "sentence-short", meaning: "만나서 반갑습니다.", text: "تَشَرَّفْتُ بِمَعْرِفَتِكَ." },
 
-  longSentenceIndex = 0;
-  showCurrentLongSentence();
-  return;
+    // 긴 글 예시 1
+    {
+      type: "sentence-long",
+      title: "동화 1",
+      meaning: "여름날 학교에 가는 소년의 이야기",
+      text:
+"فِي يَوْمٍ مِنَ الأَيَّامِ ذَهَبَ وَلَدٌ صَغِيرٌ إِلَى الْمَدْرَسَةِ.\n" +
+"كَانَ يَحْمِلُ فِي حَقِيبَتِهِ كِتَابَ الْقِصَصِ الَّذِي يُحِبُّهُ جِدًّا.\n" +
+"فِي طَرِيقِهِ قَابَلَ صَدِيقَهُ فِي الْحَيِّ، وَتَحَدَّثَا عَنِ الْأَحْلَامِ وَالْمُسْتَقْبَلِ."
+    },
+    // 긴 글 예시 2
+    {
+      type: "sentence-long",
+      title: "뉴스 1",
+      meaning: "아랍어 교육 프로그램 개설에 관한 뉴스",
+      text:
+"أَعْلَنَتِ الْجَامِعَةُ الْيَوْمَ عَنْ بَرْنَامَجٍ جَدِيدٍ لِتَعْلِيمِ اللُّغَةِ الْعَرَبِيَّةِ.\n" +
+"يَهْدِفُ الْبَرْنَامَجُ إِلَى مُسَاعَدَةِ الطُّلَّابِ عَلَى التَّحَدُّثِ وَالْكِتَابَةِ بِطَلَاقَةٍ.\n" +
+"سَيَبْدَأُ التَّسْجِيلُ فِي الشَّهْرِ الْمُقْبِلِ وَسَيَكُونُ مَجَّانِيًّا لِجَمِيعِ الطُّلَّابِ."
+    }
+  ];
+
+  // ---------- 상단 탭 ----------
+  const mainTabButtons = document.querySelectorAll(".main-tab-btn");
+  const practiceSection = document.getElementById("practiceSection");
+  const gameSection = document.getElementById("gameSection");
+  let currentMode = "word";
+
+  mainTabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      mainTabButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const tab = btn.dataset.tab;
+
+      if (tab === "game") {
+        practiceSection.classList.remove("active");
+        gameSection.classList.add("active");
+      } else {
+        gameSection.classList.remove("active");
+        practiceSection.classList.add("active");
+        currentMode = tab;
+        setupPracticeMode();
       }
+    });
+  });
 
-      const targetText = practiceCurrent.text || "";
-      practiceMeaning.textContent = practiceCurrent.meaning || "";
-      practiceTarget.textContent = targetText;
+  // ---------- 연습 모드 ----------
+  const modeTitle = document.getElementById("modeTitle");
+  const practiceMeaning = document.getElementById("practiceMeaning");
+  const practiceTarget = document.getElementById("practiceTarget");
+  const practiceTypedDisplay = document.getElementById("practiceTypedDisplay");
+  const practiceInput = document.getElementById("practiceInput");
+  const practiceTopStats = document.getElementById("practiceTopStats");
+  const longSelector = document.getElementById("longSelector");
+  const longListEl = document.getElementById("longList");
+  const practiceNextBtn = document.getElementById("practiceNextBtn");
+
+  let practiceList = [];
+  let practiceIndex = 0;
+  let practiceCurrent = null;
+
+  function updatePracticeTopStats(accuracy, typedLen, totalLen) {
+    const progressCount = (practiceList && practiceList.length > 0)
+      ? (practiceIndex + 1)
+      : 0;
+    practiceTopStats.textContent =
+      "진행도: " + progressCount + "개 · 정확도: " +
+      accuracy + "% · " + typedLen + " / " + totalLen + " 글자";
+  }
+
+  function buildLongList() {
+    longListEl.innerHTML = "";
+    practiceList.forEach((item, idx) => {
+      const div = document.createElement("div");
+      div.className = "long-item" + (idx === practiceIndex ? " selected" : "");
+      const title = item.title || item.meaning || ("긴 글 " + (idx + 1));
+      div.textContent = title;
+      div.addEventListener("click", () => {
+        practiceIndex = idx;
+        loadPracticeItem();
+        document.querySelectorAll(".long-item").forEach((el, i) => {
+          el.classList.toggle("selected", i === practiceIndex);
+        });
+      });
+      longListEl.appendChild(div);
+    });
+  }
+
+  function setupPracticeMode() {
+    if (currentMode === "word") {
+      modeTitle.textContent = "단어";
+      practiceList = shuffleArray(exercises.filter(ex => ex.type === "word"));
+      longSelector.classList.remove("active");
+    } else if (currentMode === "short") {
+      modeTitle.textContent = "문장";
+      practiceList = shuffleArray(exercises.filter(ex => ex.type === "sentence-short"));
+      longSelector.classList.remove("active");
+    } else {
+      modeTitle.textContent = "긴 글";
+      practiceList = exercises.filter(ex => ex.type === "sentence-long"); // 긴 글은 순서 유지
+      longSelector.classList.add("active");
+      buildLongList();
+    }
+
+    if (practiceList.length === 0) {
+      practiceMeaning.textContent = "연습할 문장이 없습니다.";
+      practiceTarget.textContent = "";
       practiceTypedDisplay.innerHTML = "";
       practiceInput.value = "";
-
-      const baseLen = stripDiacritics(targetText).length;
-      updatePracticeTopStats(100, 0, baseLen);
-
-      practiceInput.focus();
+      updatePracticeTopStats(100, 0, 0);
+      return;
     }
 
-    function updatePracticeTopStats(accuracy, typedLen, totalLen) {
-  // 긴 글 탭일 때: 문장 기준 진행도 (현재 문장 / 전체 문장 수)
-  if (currentMode === "long") {
-    const curSentence = (currentLongSentences && currentLongSentences.length > 0)
-      ? (longSentenceIndex + 1)
-      : 0;
-    const totalSentences = (currentLongSentences && currentLongSentences.length > 0)
-      ? currentLongSentences.length
-      : 0;
-
-    practiceTopStats.textContent =
-      `진행도: ${curSentence} / ${totalSentences} 문장 · 정확도: ${accuracy}% · ${typedLen} / ${totalLen} 글자`;
-    return;
+    practiceIndex = 0;
+    loadPracticeItem();
   }
 
-  // 단어/문장 탭일 때: 기존처럼 "몇 개" 기준 진행도
-  const progressCount = (practiceList && practiceList.length > 0)
-    ? (practiceIndex + 1)
-    : 0;
+  function loadPracticeItem() {
+    practiceCurrent = practiceList[practiceIndex];
+    const targetText = practiceCurrent.text || "";
 
-  practiceTopStats.textContent =
-    `진행도: ${progressCount}개 · 정확도: ${accuracy}% · ${typedLen} / ${totalLen} 글자`;
+    practiceMeaning.textContent = practiceCurrent.meaning || "";
+    practiceTarget.textContent = targetText;
+    practiceTypedDisplay.innerHTML = "";
+    practiceInput.value = "";
+
+    const baseLen = stripDiacritics(targetText).length;
+    updatePracticeTopStats(100, 0, baseLen);
+
+    if (currentMode === "long") {
+      document.querySelectorAll(".long-item").forEach((el, i) => {
+        el.classList.toggle("selected", i === practiceIndex);
+      });
     }
 
-    function goToNextPractice() {
-      if (practiceList.length === 0) return;
+    practiceInput.focus();
+  }
 
-      if (currentMode === "long") {
-        if (currentLongSentences && longSentenceIndex < currentLongSentences.length - 1) {
-          longSentenceIndex++;
-          showCurrentLongSentence();
-          return;
-        } else {
-          practiceIndex = (practiceIndex + 1) % practiceList.length;
-          loadPracticeItem();
-          return;
-        }
-      } else {
-        practiceIndex = (practiceIndex + 1) % practiceList.length;
-        loadPracticeItem();
-      }
-    }
+  function updatePracticeTyping() {
+    if (!practiceCurrent) return;
+    const typed = practiceInput.value;
+    const target = practiceCurrent.text || "";
 
-    practiceInput.addEventListener("input", updatePracticeTyping);
+    const result = colorizeText(target, typed);
+    const html = result.html;
+    const correctCount = result.correctCount;
+    const baseLen = result.baseLen;
 
-    // 엔터로 다음
-    practiceInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        goToNextPractice();
-      }
-    });
+    practiceTypedDisplay.innerHTML = html;
 
-    practiceNextBtn.addEventListener("click", () => {
+    const totalTyped = typed.length;
+    const accuracy = totalTyped === 0
+      ? 100
+      : Math.round((correctCount / totalTyped) * 100);
+
+    updatePracticeTopStats(accuracy, totalTyped, baseLen);
+  }
+
+  function goToNextPractice() {
+    if (practiceList.length === 0) return;
+    practiceIndex = (practiceIndex + 1) % practiceList.length;
+    loadPracticeItem();
+  }
+
+  practiceInput.addEventListener("input", updatePracticeTyping);
+  // 엔터로도 다음 문제
+  practiceInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
       goToNextPractice();
-    });
-
-    setupPracticeMode();
-
-    // ---------- 게임 탭 전환 ----------
-    const gameTabButtons = document.querySelectorAll(".game-tab-btn");
-    const fallWordArea = document.getElementById("fallWordArea");
-    const timeSentenceArea = document.getElementById("timeSentenceArea");
-
-    gameTabButtons.forEach(btn => {
-  const handler = (e) => {
-    e.preventDefault();
-
-    gameTabButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    const gameType = btn.dataset.game;
-
-    if (gameType === "fallWord") {
-      fallWordArea.classList.add("active");
-      timeSentenceArea.classList.remove("active");
-    } else {
-      timeSentenceArea.classList.add("active");
-      fallWordArea.classList.remove("active");
     }
+  });
+  // 다음 버튼으로도 이동
+  practiceNextBtn.addEventListener("click", goToNextPractice);
+
+  // 최초 로딩 시 단어 모드
+  setupPracticeMode();
+
+  // ---------- 게임 탭 전환 ----------
+  const gameTabButtons = document.querySelectorAll(".game-tab-btn");
+  const fallWordArea = document.getElementById("fallWordArea");
+  const timeSentenceArea = document.getElementById("timeSentenceArea");
+
+  gameTabButtons.forEach(btn => {
+    const handler = function (e) {
+      e.preventDefault();
+      gameTabButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const gameType = btn.dataset.game;
+
+      if (gameType === "fallWord") {
+        fallWordArea.classList.add("active");
+        timeSentenceArea.classList.remove("active");
+      } else {
+        timeSentenceArea.classList.add("active");
+        fallWordArea.classList.remove("active");
+      }
+    };
+
+    // 클릭 + 터치 모두 대응
+    btn.addEventListener("click", handler);
+    btn.addEventListener("touchstart", function (e) {
+      e.preventDefault();
+      handler(e);
+    }, { passive: false });
+  });
+
+  // ---------- 단어 게임 (위 -> 아래) ----------
+  const fallWrapper = document.getElementById("fallWrapper");
+  const fallTypedDisplay = document.getElementById("fallTypedDisplay");
+  const fallInput = document.getElementById("fallInput");
+  const fallScoreTop = document.getElementById("fallScoreTop");
+  const fallSpeedInfo = document.getElementById("fallSpeedInfo");
+  const fallStatus = document.getElementById("fallStatus");
+  const fallStartBtn = document.getElementById("fallStartBtn");
+
+  let fallState = {
+    active: false,
+    score: 0,
+    speed: 1.5,
+    timerId: null,
+    spawnId: null,
+    items: [],
+    lanes: [10, 30, 50, 70, 90],
+    nextLaneIndex: 0,
+    current: null
   };
 
-  // 클릭·터치 상관없이 pointerdown 하나로 처리
-  btn.addEventListener("pointerdown", handler);
-});
-    // ---------- 단어 게임 ----------
-    const fallWrapper = document.getElementById("fallWrapper");
-    const fallTypedDisplay = document.getElementById("fallTypedDisplay");
-    const fallInput = document.getElementById("fallInput");
-    const fallScoreTop = document.getElementById("fallScoreTop");
-    const fallSpeedInfo = document.getElementById("fallSpeedInfo");
-    const fallStatus = document.getElementById("fallStatus");
-    const fallStartBtn = document.getElementById("fallStartBtn");
+  function getRandomWord() {
+    const wordList = exercises.filter(ex => ex.type === "word");
+    if (wordList.length === 0) return null;
+    const idx = Math.floor(Math.random() * wordList.length);
+    return wordList[idx];
+  }
 
-    const diffButtons = document.querySelectorAll(".diff-btn");
-    let fallDifficulty = "easy";
+  function spawnFallWord() {
+    if (!fallState.active) return;
+    const data = getRandomWord();
+    if (!data) return;
 
-    function getFallConfig() {
-      if (fallDifficulty === "easy") {
-        return { speed: 1.0, spawnInterval: 2600 };
-      } else if (fallDifficulty === "normal") {
-        return { speed: 1.6, spawnInterval: 2100 };
-      } else {
-        return { speed: 2.2, spawnInterval: 1700 };
+    const id = Date.now() + Math.random();
+    const lane = fallState.lanes[fallState.nextLaneIndex];
+    fallState.nextLaneIndex = (fallState.nextLaneIndex + 1) % fallState.lanes.length;
+
+    const el = document.createElement("div");
+    el.className = "fall-word";
+    el.dataset.id = id;
+    el.textContent = data.text;
+
+    let yPx = -40;
+    el.style.top = yPx + "px";
+    el.style.left = lane + "%";
+
+    fallWrapper.appendChild(el);
+
+    const item = { id: id, text: data.text, el: el, yPx: yPx, lane: lane };
+    fallState.items.push(item);
+
+    if (!fallState.current) {
+      fallState.current = item;
+      fallInput.value = "";
+      fallTypedDisplay.innerHTML = "";
+    }
+  }
+
+  function updateFallingPosition() {
+    if (!fallState.active) return;
+    const wrapperHeight = fallWrapper.clientHeight;
+
+    for (let i = 0; i < fallState.items.length; i++) {
+      const item = fallState.items[i];
+      item.yPx += fallState.speed;
+      item.el.style.top = item.yPx + "px";
+
+      const bottom = item.yPx + item.el.offsetHeight;
+      if (bottom >= wrapperHeight) {
+        stopFallGame(false);
+        return;
       }
     }
+  }
 
-    diffButtons.forEach(btn => {
-  const handler = (e) => {
-    e.preventDefault();
+  function startFallGame() {
     if (fallState.active) return;
 
-    diffButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    fallDifficulty = btn.dataset.level;
+    fallState.active = true;
+    fallState.score = 0;
+    fallState.speed = 1.5;
+    fallState.items.forEach(function (i) { i.el.remove(); });
+    fallState.items = [];
+    fallState.current = null;
+    fallWrapper.innerHTML = "";
+    fallScoreTop.textContent = "점수: 0";
+    fallSpeedInfo.textContent = "속도: 1.5x";
+    fallStatus.textContent = "진행 중...";
+    fallTypedDisplay.innerHTML = "";
+    fallInput.value = "";
+    fallInput.focus();
 
-    const cfg = getFallConfig();
-    fallSpeedInfo.textContent = `속도: ${cfg.speed.toFixed(1)}x`;
+    if (fallState.timerId) clearInterval(fallState.timerId);
+    if (fallState.spawnId) clearInterval(fallState.spawnId);
+
+    fallState.timerId = setInterval(updateFallingPosition, 40);
+    fallState.spawnId = setInterval(spawnFallWord, 2200);
+
+    spawnFallWord();
+  }
+
+  function stopFallGame(cleared) {
+    fallState.active = false;
+    if (fallState.timerId) {
+      clearInterval(fallState.timerId);
+      fallState.timerId = null;
+    }
+    if (fallState.spawnId) {
+      clearInterval(fallState.spawnId);
+      fallState.spawnId = null;
+    }
+
+    if (!cleared) {
+      fallStatus.textContent = "게임 오버 · 최종 점수: " + fallState.score;
+    } else {
+      fallStatus.textContent = "게임 종료 · 점수: " + fallState.score;
+    }
+  }
+
+  function handleFallInput() {
+    if (!fallState.active || !fallState.current) return;
+
+    const typed = fallInput.value;
+    const target = fallState.current.text;
+    const result = colorizeText(target, typed);
+    const html = result.html;
+
+    fallTypedDisplay.innerHTML = html;
+
+    if (stripDiacritics(typed) === stripDiacritics(target)) {
+      fallState.score++;
+      fallScoreTop.textContent = "점수: " + fallState.score;
+
+      fallState.speed += 0.3;
+      fallSpeedInfo.textContent = "속도: " + fallState.speed.toFixed(1) + "x";
+
+      fallState.current.el.remove();
+      fallState.items = fallState.items.filter(function (it) {
+        return it.id !== fallState.current.id;
+      });
+      fallState.current = fallState.items[0] || null;
+
+      fallInput.value = "";
+      fallTypedDisplay.innerHTML = "";
+    }
+  }
+
+  // 게임 시작 버튼: 클릭 + 터치 모두 대응
+  fallStartBtn.addEventListener("click", function () {
+    startFallGame();
+  });
+  fallStartBtn.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    startFallGame();
+  }, { passive: false });
+
+  fallInput.addEventListener("input", handleFallInput);
+
+  // ---------- 문장 타임어택 ----------
+  const timeMeaning = document.getElementById("timeMeaning");
+  const timeTargetDisplay = document.getElementById("timeTargetDisplay");
+  const timeTypedDisplay = document.getElementById("timeTypedDisplay");
+  const timeInput = document.getElementById("timeInput");
+  const timeLeftEl = document.getElementById("timeLeft");
+  const timeScoreEl = document.getElementById("timeScore");
+  const timeAccuracyEl = document.getElementById("timeAccuracy");
+  const timeStartBtn = document.getElementById("timeStartBtn");
+
+  let timeState = {
+    active: false,
+    timeLeft: 30,
+    timerId: null,
+    score: 0,
+    current: null
   };
 
-  btn.addEventListener("pointerdown", handler);
-});
+  function getRandomSentence() {
+    const list = exercises.filter(function (ex) {
+      return ex.type === "sentence-short";
+    });
+    if (list.length === 0) return null;
+    const idx = Math.floor(Math.random() * list.length);
+    return list[idx];
+  }
 
-    let fallState = {
-      active: false,
-      score: 0,
-      speed: 1.0,
-      timerId: null,
-      spawnId: null,
-      items: [],
-      current: null
-    };
+  function loadTimeQuestion() {
+    timeState.current = getRandomSentence();
+    if (!timeState.current) return;
 
-    function getRandomWord() {
-      const wordList = exercises.filter(ex => ex.type === "word");
-      if (wordList.length === 0) return null;
-      const idx = Math.floor(Math.random() * wordList.length);
-      return wordList[idx];
-    }
+    timeMeaning.textContent = timeState.current.meaning || "";
+    timeTargetDisplay.textContent = timeState.current.text || "";
+    timeTypedDisplay.innerHTML = "";
+    timeInput.value = "";
+    timeInput.focus();
+  }
 
-    function spawnFallWord() {
-      if (!fallState.active) return;
-      const data = getRandomWord();
-      if (!data) return;
+  function updateTimeTyping() {
+    if (!timeState.active || !timeState.current) return;
 
-      const id = Date.now() + Math.random();
+    const typed = timeInput.value;
+    const target = timeState.current.text;
+    const result = colorizeText(target, typed);
+    const html = result.html;
+    const correctCount = result.correctCount;
 
-      const el = document.createElement("div");
-      el.className = "fall-word";
-      el.dataset.id = id;
-      el.textContent = data.text;
+    timeTypedDisplay.innerHTML = html;
 
-      let yPx = -40;
-      el.style.top = yPx + "px";
-
-      fallWrapper.appendChild(el);
-
-      const item = { id, text: data.text, el, yPx };
-      fallState.items.push(item);
-
-      if (!fallState.current) {
-        fallState.current = item;
-        fallInput.value = "";
-        fallTypedDisplay.innerHTML = "";
-      }
-    }
-
-    function updateFallingPosition() {
-      if (!fallState.active) return;
-      const wrapperHeight = fallWrapper.clientHeight;
-
-      for (const item of fallState.items) {
-        item.yPx += fallState.speed;
-        item.el.style.top = item.yPx + "px";
-
-        const bottom = item.yPx + item.el.offsetHeight;
-        if (bottom >= wrapperHeight) {
-          stopFallGame(false);
-          return;
-        }
-      }
-    }
-
-    function startFallGame() {
-      if (fallState.active) return;
-
-      const cfg = getFallConfig();
-
-      fallState.active = true;
-      fallState.score = 0;
-      fallState.speed = cfg.speed;
-      fallState.items.forEach(i => i.el.remove());
-      fallState.items = [];
-      fallState.current = null;
-      fallWrapper.innerHTML = "";
-      fallScoreTop.textContent = "점수: 0";
-      fallSpeedInfo.textContent = `속도: ${cfg.speed.toFixed(1)}x`;
-      fallStatus.textContent = "진행 중...";
-      fallTypedDisplay.innerHTML = "";
-      fallInput.value = "";
-      fallInput.focus();
-
-      if (fallState.timerId) clearInterval(fallState.timerId);
-      if (fallState.spawnId) clearInterval(fallState.spawnId);
-
-      fallState.timerId = setInterval(updateFallingPosition, 40);
-      fallState.spawnId = setInterval(spawnFallWord, cfg.spawnInterval);
-
-      spawnFallWord();
-    }
-
-    function stopFallGame(cleared) {
-      fallState.active = false;
-      if (fallState.timerId) {
-        clearInterval(fallState.timerId);
-        fallState.timerId = null;
-      }
-      if (fallState.spawnId) {
-        clearInterval(fallState.spawnId);
-        fallState.spawnId = null;
-      }
-
-      if (!cleared) {
-        fallStatus.textContent = `게임 오버 · 최종 점수: ${fallState.score}`;
-      } else {
-        fallStatus.textContent = `게임 종료 · 점수: ${fallState.score}`;
-      }
-    }
-
-    function handleFallInput() {
-      if (!fallState.active || !fallState.current) return;
-
-      const typed = fallInput.value;
-      const target = fallState.current.text;
-      const { html } = colorizeText(target, typed);
-      fallTypedDisplay.innerHTML = html;
-
-      if (stripDiacritics(typed) === stripDiacritics(target)) {
-        fallState.score++;
-        fallScoreTop.textContent = `점수: ${fallState.score}`;
-
-        fallState.speed += 0.3;
-        fallSpeedInfo.textContent = `속도: ${fallState.speed.toFixed(1)}x`;
-
-        fallState.current.el.remove();
-        fallState.items = fallState.items.filter(it => it.id !== fallState.current.id);
-        fallState.current = fallState.items[0] || null;
-
-        fallInput.value = "";
-        fallTypedDisplay.innerHTML = "";
-      }
-    }
-
-    fallStartBtn.addEventListener("pointerdown", (e) => {
-  e.preventDefault();
-  startFallGame();
-});
-    
-    fallInput.addEventListener("input", handleFallInput);
-
-    // ---------- 문장 타임어택 ----------
-    const timeMeaning = document.getElementById("timeMeaning");
-    const timeTargetDisplay = document.getElementById("timeTargetDisplay");
-    const timeTypedDisplay = document.getElementById("timeTypedDisplay");
-    const timeInput = document.getElementById("timeInput");
-    const timeLeftEl = document.getElementById("timeLeft");
-    const timeScoreEl = document.getElementById("timeScore");
-    const timeAccuracyEl = document.getElementById("timeAccuracy");
-    const timeStartBtn = document.getElementById("timeStartBtn");
-
-    let timeState = {
-      active: false,
-      timeLeft: 30,
-      timerId: null,
-      score: 0,
-      current: null
-    };
-
-    function getRandomSentence() {
-      const list = exercises.filter(ex =>
-        ex.type === "sentence-short" || ex.type === "sentence-long"
-      );
-      if (list.length === 0) return null;
-      const idx = Math.floor(Math.random() * list.length);
-      return list[idx];
-    }
-
-    function loadTimeQuestion() {
-      timeState.current = getRandomSentence();
-      if (!timeState.current) return;
-
-      timeMeaning.textContent = timeState.current.meaning || timeState.current.title || "";
-      timeTargetDisplay.textContent = timeState.current.text || "";
-      timeTypedDisplay.innerHTML = "";
-      timeInput.value = "";
-      timeInput.focus();
-    }
-
-    function updateTimeTyping() {
-      if (!timeState.active || !timeState.current) return;
-
-      const typed = timeInput.value;
-      const target = timeTargetDisplay.textContent;
-      const { html, correctCount, baseLen, typedLen } = colorizeText(target, typed);
-      timeTypedDisplay.innerHTML = html;
-
-      if (stripDiacritics(typed) === stripDiacritics(target)) {
-        timeState.score++;
-        timeScoreEl.textContent = `완료한 문제: ${timeState.score}개`;
-        loadTimeQuestion();
-      }
-
-      const accuracy = typedLen === 0
-        ? 100
-        : Math.round((correctCount / baseLen) * 100);
-      timeAccuracyEl.textContent = `정확도: ${accuracy}%`;
-    }
-
-    function startTimeAttack() {
-      if (timeState.active) return;
-
-      timeState.active = true;
-      timeState.timeLeft = 30;
-      timeState.score = 0;
-      timeScoreEl.textContent = "완료한 문제: 0개";
-      timeLeftEl.textContent = "남은 시간: 30초";
-      timeAccuracyEl.textContent = "정확도: 100%";
+    if (stripDiacritics(typed) === stripDiacritics(target)) {
+      timeState.score++;
+      timeScoreEl.textContent = "완료한 문제: " + timeState.score + "개";
       loadTimeQuestion();
-
-      if (timeState.timerId) clearInterval(timeState.timerId);
-      timeState.timerId = setInterval(() => {
-        timeState.timeLeft--;
-        if (timeState.timeLeft <= 0) {
-          timeLeftEl.textContent = "남은 시간: 0초";
-          endTimeAttack();
-        } else {
-          timeLeftEl.textContent = `남은 시간: ${timeState.timeLeft}초`;
-        }
-      }, 1000);
     }
 
-    function endTimeAttack() {
-      timeState.active = false;
-      if (timeState.timerId) {
-        clearInterval(timeState.timerId);
-        timeState.timerId = null;
+    const totalTyped = typed.length;
+    const acc = totalTyped === 0
+      ? 100
+      : Math.round((correctCount / totalTyped) * 100);
+    timeAccuracyEl.textContent = "정확도: " + acc + "%";
+  }
+
+  function startTimeAttack() {
+    if (timeState.active) return;
+
+    timeState.active = true;
+    timeState.timeLeft = 30;
+    timeState.score = 0;
+    timeScoreEl.textContent = "완료한 문제: 0개";
+    timeLeftEl.textContent = "남은 시간: 30초";
+    timeAccuracyEl.textContent = "정확도: 100%";
+    loadTimeQuestion();
+
+    if (timeState.timerId) clearInterval(timeState.timerId);
+    timeState.timerId = setInterval(function () {
+      timeState.timeLeft--;
+      if (timeState.timeLeft <= 0) {
+        timeLeftEl.textContent = "남은 시간: 0초";
+        endTimeAttack();
+      } else {
+        timeLeftEl.textContent = "남은 시간: " + timeState.timeLeft + "초";
       }
-      timeLeftEl.textContent = `시간 종료 · 최종 점수: ${timeState.score}개`;
-    }
+    }, 1000);
+  }
 
-    timeStartBtn.addEventListener("pointerdown", (e) => {
-  e.preventDefault();
-  startTimeAttack();
-});
-    
-    timeInput.addEventListener("input", updateTimeTyping);
-  </script>
+  function endTimeAttack() {
+    timeState.active = false;
+    if (timeState.timerId) {
+      clearInterval(timeState.timerId);
+      timeState.timerId = null;
+    }
+    timeLeftEl.textContent = "시간 종료 · 최종 점수: " + timeState.score + "개";
+  }
+
+  timeStartBtn.addEventListener("click", function () {
+    startTimeAttack();
+  });
+  timeStartBtn.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    startTimeAttack();
+  }, { passive: false });
+
+  timeInput.addEventListener("input", updateTimeTyping);
+</script>
+
 </body>
 </html>
