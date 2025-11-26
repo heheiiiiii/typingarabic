@@ -1314,23 +1314,25 @@ let currentLongSentencesKor = [];   // ← 이 줄 추가
       }
     }
 
-    diffButtons.forEach(btn => {
-  const handler = () => {
-    if (fallState.active) return;
+    gameTabButtons.forEach(btn => {
+  const handler = (e) => {
+    e.preventDefault();
 
-    diffButtons.forEach(b => b.classList.remove("active"));
+    gameTabButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    fallDifficulty = btn.dataset.level;
+    const gameType = btn.dataset.game;
 
-    const cfg = getFallConfig();
-    fallSpeedInfo.textContent = `속도: ${cfg.speed.toFixed(1)}x`;
+    if (gameType === "fallWord") {
+      fallWordArea.classList.add("active");
+      timeSentenceArea.classList.remove("active");
+    } else {
+      timeSentenceArea.classList.add("active");
+      fallWordArea.classList.remove("active");
+    }
   };
 
-  btn.addEventListener("click", handler);
-  btn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    handler();
-  });
+  // 클릭·터치 상관없이 pointerdown 하나로 처리
+  btn.addEventListener("pointerdown", handler);
 });
 
     let fallState = {
