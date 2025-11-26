@@ -351,7 +351,7 @@
     /* 떨어지는 단어용 영역 */
     .fall-wrapper {
       position: relative;
-      height: 220px;
+      height: 320px;
       overflow: hidden;
       border-radius: 12px;
       background: #fafafa;
@@ -361,8 +361,8 @@
 
     .fall-word {
       position: absolute;
-      right: 50%;
-      transform: translate(50%, 0%);
+      left: 50%;
+      transform: translate(-50%, 0%);
       font-size: 1.9rem;
       direction: rtl;
       text-align: center;
@@ -810,6 +810,7 @@
       spawnId: null,
       items: [],   // { id, text, el, y }
       current: null
+       nextSide: "left
     };
 
     function getRandomWord() {
@@ -820,36 +821,45 @@
     }
 
     function spawnFallWord() {
-      if (!fallState.active) return;
-      const data = getRandomWord();
-      if (!data) return;
+  if (!fallState.active) return;
+  const data = getRandomWord();
+  if (!data) return;
 
-      const id = Date.now() + Math.random();
-      const el = document.createElement("div");
-      el.className = "fall-word";
-      el.dataset.id = id;
-      el.textContent = data.text;
-      el.style.transform = "translate(50%, 0%)";
+  const id = Date.now() + Math.random();
 
-      fallWrapper.appendChild(el);
+  // 좌우 번갈아가면서 x 위치 설정 (25% ↔ 75%)
+  const x = fallState.nextSide === "left" ? 25 : 75;
+  fallState.nextSide = fallState.nextSide === "left" ? "right" : "left";
 
-      const item = { id, text: data.text, el, y: 0 };
-      fallState.items.push(item);
+  const el = document.createElement("div");
+  el.className = "fall-word";
+  el.dataset.id = id;
+  el.textContent = data.text;
 
-      // 타이핑 대상이 없으면 첫 단어를 대상으로
-      if (!fallState.current) {
-        fallState.current = item;
-        fallTypedDisplay.innerHTML = "";
-        fallInput.value = "";
-      }
-    }
+  // x 위치 반영, y=0으로 시작
+  el.style.left = x + "%";
+  el.style.transform = "translate(-50%, 0%)";
+
+  fallWrapper.appendChild(el);
+
+  const item = { id, text: data.text, el, y: 0, x };
+  fallState.items.push(item);
+
+  // 아직 타이핑 대상이 없으면 이 단어부터
+  if (!fallState.current) {
+    fallState.current = item;
+    fallTypedDisplay.innerHTML = "";
+    fallInput.value = "";
+  }
+}
+
 
     function updateFallingPosition() {
       if (!fallState.active) return;
 
       for (const item of fallState.items) {
         item.y += fallState.speed;
-        item.el.style.transform = `translate(50%, ${item.y}%)`;
+        item.el.style.transform = `translate(-50%, ${item.y}%)`;
 
         // 바닥에 닿으면 게임 오버
         if (item.y >= 100) {
